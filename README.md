@@ -16,7 +16,7 @@
 
 ``` stata
 * 从 Gitee 上安装
-net install tssc.pkg, from("https://tidyfriday.gitee.io/tssc")
+net install tssc.pkg, from("https://tidyfriday.gitee.io/tssc/")
 * 从 GitHub 上安装：
 net install tssc.pkg, from("https://czxa.github.io/tssc/")
 ```
