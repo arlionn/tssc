@@ -8,7 +8,7 @@
 
 <div data-align="center">
 
-    <img src="https://czxa.github.io/tssc/assets/qrcode_for_gh_97f81c8af6d6_258.jpg" width="30%"/>
+<img src="https://czxa.github.io/tssc/assets/qrcode_for_gh_97f81c8af6d6_258.jpg" width="30%"/>
 
 </div>
 
