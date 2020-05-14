@@ -14,27 +14,38 @@
 
 ## 安装 tssc 命令
 
-> 暂时没有编写！
-
 ``` stata
+* 从 Gitee 上安装
+net install tssc.pkg, from("https://tidyfriday.gitee.io/tssc")
 * 从 GitHub 上安装：
-* net install tssc.pkg, from("https://czxa.github.io/tssc/")
+net install tssc.pkg, from("https://czxa.github.io/tssc/")
 ```
 
 ## 安装 tssc 部署的 Stata 外部命令
 
-以 spmap 为例：
+``` stata
+* 查看命令列表
+tssc list
+
+* 安装命令（以 spmap 为例）
+tssc install spmap, all replace
+```
+
+另外你也可以使用 net install 安装：
 
 ``` stata
 * 从 Gitee 上安装：
-net install spmap.pkg, from("https://tidyfriday.gitee.io/tssc/ssc/spmap/") replace force
+net install spmap.pkg, from("https://tidyfriday.gitee.io/tssc/ssc/spmap/") all replace
 * 如果提示 Web Error 可以尝试从 GitHub 上安装：
-net install spmap.pkg, from("https://czxa.github.io/tssc/ssc/spmap/") replace force
+net install spmap.pkg, from("https://czxa.github.io/tssc/ssc/spmap/") all replace
 ```
 
 ### TSSC 命令列表
 
 #### SSC 命令列表
+
+SSC 上合计有 2867 个 Stata
+外部命令：
 
 <details>
 
