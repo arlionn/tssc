@@ -1,0 +1,37 @@
+---
+output: github_document
+---
+
+# TidyFriday统计程序软件归档
+
+### 命令列表
+
+#### SSC 命令列表
+
+<details>
+<summary>点击查看完整的命令列表</summary>
+<p>
+
+```{r echo=FALSE}
+haven::read_dta('cmdlist.dta') %>% 
+  mutate(install = paste("tssc install", cmd)) %>% 
+  knitr::kable(align = 'c')
+```
+
+</p></details>
+
+
+#### 其他命令列表
+
+<details>
+<summary>点击查看完整的命令列表</summary>
+<p>
+
+待增加
+
+</p></details>
+
+------------
+
+<h4 align="center">License</h4>
+<h6 align="center">MIT © tidyfriday.cn</h6>
