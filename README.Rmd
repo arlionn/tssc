@@ -44,9 +44,7 @@ net install spmap.pkg, from("https://czxa.github.io/tssc/ssc/spmap/") all replac
 
 ### TSSC 命令列表
 
-#### SSC 命令列表
-
-SSC 上合计有 `r nrow(haven::read_dta('cmdlist.dta'))` 个 Stata 外部命令：
+TSSC 上合计有 `r nrow(haven::read_dta('cmdlist.dta'))` 个 Stata 外部命令：
 
 <details>
 <summary>点击查看完整的命令列表</summary>
@@ -57,17 +55,6 @@ haven::read_dta('cmdlist.dta') %>%
   mutate(install = paste("tssc install", cmd)) %>% 
   knitr::kable(align = 'c')
 ```
-
-</p></details>
-
-
-#### 其他命令列表
-
-<details>
-<summary>点击查看完整的命令列表</summary>
-<p>
-
-待增加
 
 </p></details>
 

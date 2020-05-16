@@ -3,7 +3,9 @@ library(tidyverse)
 library(fs)
 for(i in dir_ls('ssc')){
   j = str_remove(i, "ssc/")
-  zip(paste0("ssczip/", j, ".zip"), i)
+  if(!file_exists(paste0("ssczip/", j, ".zip"))){
+    zip(paste0("ssczip/", j, ".zip"), i) 
+  }
 }
 
 # 获取 Stata 的简介
