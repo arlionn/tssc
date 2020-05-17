@@ -3963,7 +3963,7 @@ tssc install brewscheme
 
 <td style="text-align:center;">
 
-brewschemeExtras
+brewschemeextras
 
 </td>
 
@@ -3975,7 +3975,7 @@ Example Scheme files generated with the brewscheme toolkit for Stata
 
 <td style="text-align:center;">
 
-tssc install brewschemeExtras
+tssc install brewschemeextras
 
 </td>
 
