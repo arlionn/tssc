@@ -41,7 +41,7 @@ net install spmap.pkg, from("https://czxa.github.io/tssc/ssc/spmap/") all replac
 
 ### TSSC 命令列表
 
-TSSC 上合计有 2882 个 Stata 外部命令：
+TSSC 上合计有 2883 个 Stata 外部命令：
 
 <details>
 
@@ -317,6 +317,26 @@ module containing extensions to generate to implement weighted mean
 <td style="text-align:center;">
 
 tssc install \_gwtmean
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+\_gzanthro
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install \_gzanthro
 
 </td>
 

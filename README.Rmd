@@ -44,6 +44,10 @@ net install spmap.pkg, from("https://czxa.github.io/tssc/ssc/spmap/") all replac
 
 ### TSSC 命令列表
 
+```{r include=FALSE}
+source('sszip.R')
+```
+
 TSSC 上合计有 `r nrow(haven::read_dta('cmdlist.dta'))` 个 Stata 外部命令：
 
 <details>
