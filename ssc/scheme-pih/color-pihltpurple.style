@@ -1,0 +1,6 @@
+*! version 1.0.1  24mar2019
+sequence 913
+* label "PIHLTPURPLE"
+label resource "COLOR-PIHLTPURPLE"
+
+set rgb "139 88 123"

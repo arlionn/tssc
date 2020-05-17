@@ -1,0 +1,6 @@
+*! version 1.0.1  24mar2019
+sequence 908
+* label "PIHDKPURPLE"
+label resource "COLOR-PIHDKPURPLE"
+
+set rgb "70 19 54"

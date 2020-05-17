@@ -1,0 +1,22 @@
+d 'feigenbaum': Stata schemes —— feigenbaum
+d
+d KW: graphics
+d KW: schemes
+d
+f color-pihdkgreen.style
+f color-pihblue.style
+f color-pihdkblue.style
+f color-pihdkorange.style
+f color-pihdkpurple.style
+f color-pihdkyellow.style
+f color-pihgreen.style
+f color-pihltblue.style
+f color-pihltgreen.style
+f color-pihltorange.style
+f color-pihltpurple.style
+f color-pihltyellow.style
+f color-pihorange.style
+f color-pihpurple.style
+f color-pihyellow.style
+f scheme-pih.scheme
+f scheme-pih.do
