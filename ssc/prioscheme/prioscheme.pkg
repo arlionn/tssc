@@ -1,0 +1,63 @@
+d 'prioscheme': Stata schemes —— prioscheme
+d
+d KW: graphics
+d KW: schemes
+d
+f ./customstyles/textboxstyle-caption.style
+f ./customstyles/textboxstyle-priosubtitle.style
+f ./customstyles/textboxstyle-priotitle.style
+f ./othercolors/color-plg3.style
+f ./othercolors/color-ananas.style
+f ./othercolors/color-orangebrown.style
+f ./othercolors/color-plb1.style
+f ./othercolors/color-plb2.style
+f ./othercolors/color-plb3.style
+f ./othercolors/color-plg1.style
+f ./othercolors/color-plg2.style
+f ./othercolors/color-pll1.style
+f ./othercolors/color-pll2.style
+f ./othercolors/color-pll3.style
+f ./othercolors/color-plr1.style
+f ./othercolors/color-plr2.style
+f ./othercolors/color-ply1.style
+f ./othercolors/color-ply2.style
+f ./othercolors/color-ply3.style
+f ./othercolors/color-reddish.style
+f ./othercolors/color-sea.style
+f ./othercolors/color-sky.style
+f ./othercolors/color-turquoise.style
+f ./othercolors/color-vermillion.style
+f ./priocolors/color-prio8.style
+f ./priocolors/color-prio1.style
+f ./priocolors/color-prio2.style
+f ./priocolors/color-prio3.style
+f ./priocolors/color-prio4.style
+f ./priocolors/color-prio5.style
+f ./priocolors/color-prio6.style
+f ./priocolors/color-prio7.style
+f ./priocolors/color-prio9.style
+f ./priocolors/color-prio10.style
+f ./priocolors/color-prio11.style
+f ./priocolors/color-prio12.style
+f ./priocolors/color-prioblue1.style
+f ./priocolors/color-prioblue2.style
+f ./priocolors/color-prioblue3.style
+f ./priocolors/color-prioblue4.style
+f ./priocolors/color-prioblue5.style
+f ./priocolors/color-prioblue6.style
+f ./priocolors/color-priogray1.style
+f ./priocolors/color-priogray2.style
+f ./priocolors/color-priogreen1.style
+f ./priocolors/color-priogreen2.style
+f ./priocolors/color-priologoblue.style
+f ./priocolors/color-priologogray.style
+f ./priocolors/color-prioneon1.style
+f ./priocolors/color-prioneon2.style
+f ./priocolors/color-prioorange1.style
+f ./priocolors/color-prioorange2.style
+f ./priocolors/color-prioyellow1.style
+f ./priocolors/color-prioyellow2.style
+f ./priocolors/textboxstyle-body.style
+f ./priocolors/textboxstyle-heading.style
+f ./priocolors/textboxstyle-text_option.style
+f ./prioscheme/scheme-prio.scheme

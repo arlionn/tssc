@@ -1,0 +1,4 @@
+*! version 1.0.0  09oct2004
+label "BurdBlue"
+ 
+set rgb  "8 81 156" 

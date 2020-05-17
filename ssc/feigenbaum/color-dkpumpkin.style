@@ -1,0 +1,5 @@
+*! version 1.0.0  09oct2004
+sequence 9000
+label "Pumpkin"
+ 
+set rgb  "255 100 50"

@@ -1,0 +1,10 @@
+d 'feigenbaum': Stata schemes —— feigenbaum
+d
+d KW: graphics
+d KW: schemes
+d
+f color-burdblue.style
+f color-burdmaroon.style
+f color-burdnavy.style
+f color-dkpumpkin.style
+f scheme-burdjjf.scheme

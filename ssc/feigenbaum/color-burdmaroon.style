@@ -1,0 +1,4 @@
+*! version 1.0.0  09oct2004
+label "BurdMaroon"
+ 
+set rgb  "178 24 43"   // Rd from RdBu-7, replaces maroon

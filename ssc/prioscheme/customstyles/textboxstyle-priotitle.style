@@ -1,0 +1,41 @@
+// title position (not working)
+set position 11
+
+// text color
+set color white
+set size large
+
+// auto draw box (off for now)
+//set textbox yes
+set drawbox yes
+//set box yes
+
+// attempt justification within box (not working)
+set box_alignment left
+set box_justification left
+set box_justify left
+set justify left
+set justification left
+set align left
+set alignment left
+
+// inner and outer box margins
+set margin small
+set boxmargin medium
+
+// box colors
+set bcolor prioblue2
+set fillcolor prioblue2
+set lcolor prioblue2
+set outlinecolor prioblue2
+set linecolor prioblue2
+set linestyle none
+
+// box expand to edges (not working)
+set bexpand yes
+set borderexpand yes
+set expand yes
+set boxexpand yes
+
+// box span beyond edges
+set span yes

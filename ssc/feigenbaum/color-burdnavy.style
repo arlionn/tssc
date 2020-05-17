@@ -1,0 +1,4 @@
+*! version 1.0.0  09oct2004
+label "BurdNavy"
+ 
+set rgb  "33 102 172"  // Bu from RdBu-7, replaces navy
