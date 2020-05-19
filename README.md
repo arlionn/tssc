@@ -7,9 +7,9 @@
 命令（带中文帮助文档的也可以），欢迎大家关注微信公众号“TidyFriday” 和
 “Stata中文社区”获取最新资讯和动态！
 
-|                                           TidyFriday                                           |                                           Stata中文社区                                            |
-| :--------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------: |
-| <img src="https://czxa.github.io/tssc/assets/qrcode_for_gh_b20919e6a407_258.jpg" width="30%"/> | <img src="https://czxa.github.io/tssc/assets/qrcode_for_gh_97f81c8af6d6_258.jpg" width="30%"/> |
+|                                   Stata连享会                                    |                                           TidyFriday                                           |                                           Stata中文社区                                            |
+| :---------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------: |
+| <img src="https://czxa.github.io/tssc/assets/WechatIMG275.jpeg" width="30%"/> | <img src="https://czxa.github.io/tssc/assets/qrcode_for_gh_b20919e6a407_258.jpg" width="30%"/> | <img src="https://czxa.github.io/tssc/assets/qrcode_for_gh_97f81c8af6d6_258.jpg" width="30%"/> |
 
 ## 安装 tssc 命令
 
@@ -41,7 +41,7 @@ net install spmap.pkg, from("https://czxa.github.io/tssc/ssc/spmap/") all replac
 
 ### TSSC 命令列表
 
-TSSC 上合计有 2883 个 Stata 外部命令：
+TSSC 上合计有 2894 个 Stata 外部命令：
 
 <details>
 
@@ -7549,6 +7549,26 @@ tssc install colorscatter
 
 <td style="text-align:center;">
 
+colorscheme
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install colorscheme
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 combinatorics
 
 </td>
@@ -8373,6 +8393,26 @@ tssc install covbal
 
 <td style="text-align:center;">
 
+cowsay
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install cowsay
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 cpcorr
 
 </td>
@@ -9060,6 +9100,28 @@ tssc install csjl
 
 <td style="text-align:center;">
 
+cssc
+
+</td>
+
+<td style="text-align:center;">
+
+从 SSC 下载并构建本地安装包
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install cssc
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 cstable
 
 </td>
@@ -9298,6 +9360,26 @@ models
 <td style="text-align:center;">
 
 tssc install curvefit
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+cuse
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install cuse
 
 </td>
 
@@ -10566,6 +10648,28 @@ module to report summary statistics for diagnostic test
 <td style="text-align:center;">
 
 tssc install diagtest
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+dict
+
+</td>
+
+<td style="text-align:center;">
+
+一个中英互译的命令
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install dict
 
 </td>
 
@@ -12588,6 +12692,28 @@ module to generate estimates and confidence limits plots
 <td style="text-align:center;">
 
 tssc install eclplot
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+eda
+
+</td>
+
+<td style="text-align:center;">
+
+a program for automating exploratory data analysis in Stata.
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install eda
 
 </td>
 
@@ -15322,6 +15448,26 @@ module to trace filter or contingency questions
 <td style="text-align:center;">
 
 tssc install filtertrace
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+finance
+
+</td>
+
+<td style="text-align:center;">
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install finance
 
 </td>
 
@@ -26540,6 +26686,28 @@ tssc install levels
 
 <td style="text-align:center;">
 
+levelsof2
+
+</td>
+
+<td style="text-align:center;">
+
+an alternative to the levelsof command.
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install levelsof2
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 levene
 
 </td>
@@ -26724,7 +26892,7 @@ libhtml
 
 <td style="text-align:center;">
 
-module providing an object oriented implementation of HTML in Mata
+An object oriented implementation of HTML in Mata.
 
 </td>
 
@@ -33874,6 +34042,28 @@ resampling methods
 <td style="text-align:center;">
 
 tssc install more\_clarify
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+moremata
+
+</td>
+
+<td style="text-align:center;">
+
+module (Mata) to provide various functions
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install moremata
 
 </td>
 
@@ -52018,6 +52208,28 @@ tssc install ssccount
 
 <td style="text-align:center;">
 
+ssczip
+
+</td>
+
+<td style="text-align:center;">
+
+github package manager
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install ssczip
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 ssi
 
 </td>
@@ -52722,6 +52934,28 @@ module to execute StatTransfer command from within Stata
 <td style="text-align:center;">
 
 tssc install stcmd
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+stcolor
+
+</td>
+
+<td style="text-align:center;">
+
+在Stata绘图中使用中国、日本传统色以及谷歌配色。
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install stcolor
 
 </td>
 

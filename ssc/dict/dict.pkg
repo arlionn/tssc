@@ -1,0 +1,9 @@
+d 'DICT': 一个中英互译的命令
+d version (release) as well as their dependencies from 
+d {browse "https://github.com/czxa/dict": GitHub} website
+d
+d Distribution-Date: 20190527
+d
+f dict.ado
+f dict.sthlp
+f percentencode.ado
