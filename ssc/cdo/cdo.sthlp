@@ -97,7 +97,7 @@ upon errors or completion. If you want to send to the default you saved in {cmd:
 
 {p 4 8}Execute a dofile (don't copy it first){break} {cmd:. cdo "C:/StataWD/sleep 2000.do", nocopy}{p_end}
 
-{p 4 8}Send a message to webhooks channel upon completion/error{break} {cmd:. cdo "C:/StataWD/sleep 2000.do", url(https://hooks.slack.com/services/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)}{p_end}
+{p 4 8}Send a message to webhooks channel upon completion/error{break} {cmd:. cdo "C:/StataWD/sleep 2000.do", url(https://hooks.slack.com/services/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)}{p_end}
 
 {p 4 8}Perform program upon completion/error {break}
 	{cmd:program define helloWorld} {break}
@@ -108,7 +108,7 @@ upon errors or completion. If you want to send to the default you saved in {cmd:
 	{cmd:. cdo "C:/StataWD/sleep 2000.do", program(helloWorld)}{p_end}
 	
 {p 4 8} Save url option {break}
-	{cmd:. cdo "C:/StataWD/sleep 2000.do", saveoptions url(https://hooks.slack.com/services/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)}{p_end}
+	{cmd:. cdo "C:/StataWD/sleep 2000.do", saveoptions url(https://hooks.slack.com/services/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)}{p_end}
 {p 4 8} Use saved option {break}
 	{cmd:. cdo "C:/StataWD/sleep 2000.do"}{p_end}	
 	

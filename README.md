@@ -41,7 +41,7 @@ net install spmap.pkg, from("https://czxa.github.io/tssc/ssc/spmap/") all replac
 
 ### TSSC 命令列表
 
-TSSC 上合计有 2894 个 Stata 外部命令：
+TSSC 上合计有 2911 个 Stata 外部命令：
 
 <details>
 
@@ -3474,6 +3474,28 @@ tssc install biplotvlab
 
 <td style="text-align:center;">
 
+bipolar
+
+</td>
+
+<td style="text-align:center;">
+
+module to calculate four measures of income bi-polarization
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install bipolar
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 bipolate
 
 </td>
@@ -4864,6 +4886,28 @@ Information
 <td style="text-align:center;">
 
 tssc install cddens
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+cdecompose
+
+</td>
+
+<td style="text-align:center;">
+
+module to estimate canonical permanent-transitory state space models
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install cdecompose
 
 </td>
 
@@ -6691,6 +6735,28 @@ non-hierarchical cluster analyses
 <td style="text-align:center;">
 
 tssc install clustergram
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+clustersampsim
+
+</td>
+
+<td style="text-align:center;">
+
+module to simulate cluster-randomized trial sample size requirements
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install clustersampsim
 
 </td>
 
@@ -11213,6 +11279,29 @@ tssc install divcat
 
 <td style="text-align:center;">
 
+dkdensity
+
+</td>
+
+<td style="text-align:center;">
+
+module for deconvolution kernel density estimation and construction of
+its uniform confidence band
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install dkdensity
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 dlagif
 
 </td>
@@ -15426,6 +15515,28 @@ module for faster file navigation
 <td style="text-align:center;">
 
 tssc install fileutils
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+fillmissing
+
+</td>
+
+<td style="text-align:center;">
+
+module to fill missing values in numeric or string variables
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install fillmissing
 
 </td>
 
@@ -23470,6 +23581,29 @@ tssc install invcise
 
 <td style="text-align:center;">
 
+invdesc
+
+</td>
+
+<td style="text-align:center;">
+
+module to change variable attributes using a describe or descsave
+resultsset
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install invdesc
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 invgammafit
 
 </td>
@@ -26476,6 +26610,28 @@ studies with binary response and two equally sized treatment groups
 <td style="text-align:center;">
 
 tssc install lbpower
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+lbsvmat
+
+</td>
+
+<td style="text-align:center;">
+
+module to create labeled variables from a matrix
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install lbsvmat
 
 </td>
 
@@ -31371,6 +31527,28 @@ tssc install mcenter
 
 <td style="text-align:center;">
 
+mces
+
+</td>
+
+<td style="text-align:center;">
+
+module for Marginal Comparison Effect Sizes
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install mces
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 mcib
 
 </td>
@@ -33508,6 +33686,28 @@ module to compute Johansen cointegration tests
 <td style="text-align:center;">
 
 tssc install mlcoint
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+mlincom
+
+</td>
+
+<td style="text-align:center;">
+
+module to estimate multiple linear combinations of parameters
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install mlincom
 
 </td>
 
@@ -36258,6 +36458,28 @@ module to perform Nonparametric Power Series Estimation
 <td style="text-align:center;">
 
 tssc install npseries
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+npss
+
+</td>
+
+<td style="text-align:center;">
+
+module to estimate nonparametric heteroskedastic state space models
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install npss
 
 </td>
 
@@ -42207,6 +42429,29 @@ tssc install qrisk2cmd
 
 <td style="text-align:center;">
 
+qrkd
+
+</td>
+
+<td style="text-align:center;">
+
+module to estimate and produce robust inference for heterogeneous causal
+effects of a continuous treatment in quantile regression kink designs
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install qrkd
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 qrowname
 
 </td>
@@ -42756,6 +43001,28 @@ module to generate pseudo-random characters or words
 <td style="text-align:center;">
 
 tssc install ralpha
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+randcmd
+
+</td>
+
+<td style="text-align:center;">
+
+module to compute randomization inference p-values
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install randcmd
 
 </td>
 
@@ -44662,6 +44929,28 @@ module to compute indices of relative clusterability of variables
 <td style="text-align:center;">
 
 tssc install rel\_clust
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+reldist
+
+</td>
+
+<td style="text-align:center;">
+
+module for relative distribution analysis
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install reldist
 
 </td>
 
@@ -48721,6 +49010,29 @@ module for panel data stochastic frontier models estimation
 <td style="text-align:center;">
 
 tssc install sfpanel
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+sgini
+
+</td>
+
+<td style="text-align:center;">
+
+module to compute Generalized Gini and Concentration coefficients, Gini
+correlations and fractional ranks"
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install sgini
 
 </td>
 
@@ -55420,6 +55732,29 @@ tssc install svysampsi
 
 <td style="text-align:center;">
 
+svysd
+
+</td>
+
+<td style="text-align:center;">
+
+module to compute pooled standard deviation weighted by within-group
+sample size
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install svysd
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 svyselmlog
 
 </td>
@@ -59840,6 +60175,29 @@ tssc install varcase
 
 <td style="text-align:center;">
 
+vardistinct
+
+</td>
+
+<td style="text-align:center;">
+
+module to generate a variable representing the number(s) of distinct
+observations or values
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install vardistinct
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
 variog
 
 </td>
@@ -61660,6 +62018,28 @@ module to perform multiple testing corrections
 <td style="text-align:center;">
 
 tssc install wyoung
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:center;">
+
+xauto
+
+</td>
+
+<td style="text-align:center;">
+
+module to input an extended version of the auto data
+
+</td>
+
+<td style="text-align:center;">
+
+tssc install xauto
 
 </td>
 

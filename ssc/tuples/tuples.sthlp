@@ -1,5 +1,5 @@
 {smcl}
-{* 12december2019}{...}
+{* 16may2020}{...}
 {cmd:help tuples}
 {hline}
 
@@ -51,18 +51,20 @@ to specified conditions
 {synopt:{opt ncr}}produce tuples using a variation of algorithm AS 88 
 (Gentleman 1975)
 {p_end}
-{synopt:{opt cvp}}produce tuples using a method based on 
-permutations; seldom used
+{synopt:{opt cvp}}produce tuples using a method based on Mata
+{help [M-5] cvpermute():permutation} function; seldom used
 {p_end}
 {synopt:{opt kronecker}}produce tuples using a method based on 
-Kronecker products; seldom used
+{help [M-2] op_kronecker:Kronecker} products; seldom used
 {p_end}
 {synopt:{opt naive}}produce tuples using a "naive" method; seldom 
 used
 {p_end}
-{synopt:{opt nos:ort}}do not sort tuples; seldom used
+{synopt:{opt nopy:thon}}do not use {help python:Python}; seldom used
 {p_end}
 {synopt:{opt nom:ata}}do not use {help mata:Mata}; seldom used
+{p_end}
+{synopt:{opt nos:ort}}do not sort tuples; seldom used
 {p_end}
 {synoptline}
 {p2colreset}{...}
@@ -155,8 +157,8 @@ with {opt nomata}, {opt naive}, {opt kronecker}, or {opt ncr}. See
 
 {phang}
 {opt kronecker} produces tuples using a method based on staggered 
-Kronecker products. {cmd:kronecker} may not be combined with 
-{opt nomata}, {opt naive}, {opt cvp}, or {opt ncr}. See
+{help [M-2] op_kronecker:Kronecker} products. {cmd:kronecker} may not be 
+combined with {opt nomata}, {opt naive}, {opt cvp}, or {opt ncr}. See
 {help tuples##methods:Methods to produce tuples}.
 
 {phang}
@@ -167,19 +169,27 @@ specified. {opt naive} may not be combined with {opt conditionals()},
 is seldom used. 
 
 {phang}
-{cmd:nosort} is for use with the default method and {opt naive}, and 
-it produces tuples in a different sort order. By default, {cmd:tuples} 
-first produces all singletons, then all distinct pairs, and so on. The 
-{opt nosort} option produces tuples in a different sort order but it 
-produces them more quickly. {opt nosort} may not be used with {opt ncr}, 
-{opt cvp}, or {opt kronecker}. In general, {opt nosort} is seldom used. 
+{opt nopython} does not call Python to produce the tuples. This option 
+is implied for Stata versions prior to 16 (but greater than 9.2) and for 
+users without a {help python:python script}-able version of Python on 
+their machine. 
 
 {phang}
 {opt nomata} produces tuples outside of the {help mata:Mata} 
-environment. This method implements the default for Stata versions prior 
+environment. This option implements the default for Stata versions prior 
 to version 10. {opt nomata} may not be combined with {opt conditionals()}, 
 {opt naive}, {opt kronecker}, or {opt cvp}. {opt nomata} is slow and it is 
-seldom used.
+seldom used. Note that {opt nomata} must be combined with {opt nopython} to 
+invoke this behavior for users who have Stata versions 16 or higher and a 
+{help python:python script}-able version of Python.
+
+{phang}
+{opt nosort} is for use with the default method, {opt nopython}, and {opt naive}, and 
+it produces tuples in a different sort order. By default, {cmd:tuples} 
+first produces all singletons, then all distinct pairs, and so on. The {opt nosort} 
+option produces tuples in a different sort order but it produces them more quickly. 
+{opt nosort} may not be used with {opt ncr}, {opt cvp}, or {opt kronecker}. 
+In general, {opt nosort} is seldom used. 
 
 
 {marker remarks}{...}
@@ -304,48 +314,67 @@ require the skillful use of the "{res}!{txt}" operator.
 {title:Methods to produce tuples}
 
 {pstd}
-{cmd:tuples} default method creates an n x (2^n-1) indicator matrix to 
-produce the tuples. This is the fastest method for short lists but it 
-also requires most memory. For long lists, the default method might 
-require more memory than your operating system is willing to provide. In 
-these cases, {cmd:tuples} will exit with an error message and return code 
-{search r(3900):r(3900);} If you have long lists or run out of memory, 
-switch to one of the other methods described below.
-
-{phang2}
-{opt ncr} requires less memory than the default method and is fast(er), 
-especially for long lists and if {opt min()} and/or {opt max()} are 
-specified. {opt ncr} should be the default method. The only situation in 
-which {cmd:ncr} is slow is when {opt conditionals()} is specified. 
-
-{phang2}
-{opt cvp} requires less memory than the default method if (and only if) 
-{opt min()} and/or {opt max()} are specified. For long lists, if the 
-fraction of tuples selected with {opt min()} and/or {opt max()} is small 
-(< 0.01), and if there are many items in a tuple, {opt cvp} tends to 
-produce tuples more quickly than the default method. 
-
-{phang2}
-{opt kronecker} requires less memory than the default method if (and only if) 
-{opt min()} and/or {opt max()} are specified. For long lists, if the fraction 
-of tuples selected with {opt min()} and/or {opt max()} is small (< 0.01), and 
-if there are few items in a tuple, {opt kronecker} tends to produce tuples 
-more quickly than the default method.
+As of {cmd:tuples} version 4.0, the default method for computing the tuples 
+is to call 
+{help python:Python}'s {browse "https://docs.python.org/3/library/itertools.html":itertools} 
+module with the {res:combinations()} method using the {res:Stata function interface} 
+to import the tuples as local macros. To invoke the Python-based method, the 
+user must have Stata version 16 or greater and an installation of Python usable by 
+{help python:python script}. The Python-based method tends to require the least memory 
+and tends to execute the fastest for long lists. Note that {cmd:tuples} has only been 
+tested in Python versions 3.6 through 3.8 and, if Python has not been initalized prior 
+to use of {cmd:tuples}, the default method will intitialize the Python environment 
+configured in {cmd:python query}.
 
 {pstd}
-{cmd:tuples} has more methods to produce the tuples but they are slower 
-than the methods mentioned above. We summarize the recommended methods in 
-the table below.
+In the remainder of this section, we describe other methods to produce 
+tuples. If you are running Stata 16 and have Python installed, these methods 
+are of little interest. We recommend using the Python-based implementation 
+whenever possible.
+
+{pstd}
+The {cmd:tuples} default Mata-based method creates an n x (2^n-1) indicator matrix to produce the 
+tuples. This is the fastest method for short lists but it also requires most memory. For long 
+lists, the default method might require more memory than your operating system is willing 
+to provide. In these cases, {cmd:tuples} will exit with an error message and return code 
+{search r(3900):r(3900);} If you need to use one of the Mata-based/{opt nopython} methods 
+and have long lists or run out of memory, switch to one of the other methods described below.
+
+{phang2}
+{opt ncr} requires less memory than the default {opt nopython} method and is 
+fast(er), especially for long lists and if {opt min()} and/or {opt max()} are 
+specified. The only situation in which {cmd:ncr} is slow is when 
+{opt conditionals()} is specified.
+
+{phang2}
+{opt cvp} requires less memory than the default {opt nopython} method if 
+(and only if) {opt min()} and/or {opt max()} are specified. For long lists, 
+if the fraction of tuples selected with {opt min()} and/or {opt max()} is 
+small (< 0.01), and if there are many items in a tuple, {opt cvp} tends to 
+produce tuples more quickly than the default {opt nopython} method. 
+
+{phang2}
+{opt kronecker} requires less memory than the default {opt nopython} method 
+if (and only if) {opt min()} and/or {opt max()} are specified. For long lists, 
+if the fraction of tuples selected with {opt min()} and/or {opt max()} is small 
+(< 0.01), and if there are few items in a tuple, {opt kronecker} tends to 
+produce tuples more quickly than the default {opt nopython} method.
+
+{pstd}
+To summarize, {cmd:tuples} has several methods to produce the tuples but they are slower 
+than the default methods in many cases. We recommend the default {help python:Python}-based method 
+in all situations where Python is available.  For Stata versions less than 16 or when Python is 
+not available, we summarize the recommended "pure Mata" methods in the table below.
 
 {col 13}items{col 38}fraction{col 49}items{col 60}recommended
 {col 13}in {it:list}{col 22}{opt conditionals()}{col 38}of tuples{col 49}per tuple{col 60}method
-{col 13}{hline 58}
-{col 13}few{col 22}yes/no{col 38}any{col 49}any{col 60}{it:default}
+{col 13}{hline 63}
+{col 13}few{col 22}yes/no{col 38}any{col 49}any{col 60}{it:default} {opt nopython}
 {col 13}many{col 22}no{col 38}any{col 49}any{col 60}{cmd:ncr}
-{col 13}many{col 22}yes{col 38}> 0.01{col 49}any{col 60}{it:default}
+{col 13}many{col 22}yes{col 38}> 0.01{col 49}any{col 60}{it:default} {opt nopython}
 {col 13}many{col 22}yes{col 38}< 0.01{col 49}many{col 60}{cmd:cvp}
 {col 13}many{col 22}yes{col 38}< 0.01{col 49}few{col 60}{cmd:kronecker}
-{col 13}{hline 58}
+{col 13}{hline 63}
 
 {pstd}
 When you think of few items in a list, think n<17. Use
@@ -431,7 +460,8 @@ with William Buchanan and a discussion with John Mullahy on
 {browse "https://www.statalist.org/forums/forum/general-stata-discussion/general/1526657-using-tuples-to-generate-combinations":Statalist}
 led to the addition of the {opt ncr} option; Mike Lacy pointed to 
 algorithm AS 88 (Gentleman 1975) and shared code on which the {opt ncr} 
-implementation is based.
+implementation is based. Thanks also to Regina Chua for assistance in testing 
+{cmd:tuples} v 4.0. Dejin Xie reported two bugs in.
 
 
 {title:References}
@@ -460,5 +490,6 @@ n.j.cox@durham.ac.uk
 {title:Also see}
 
 {psee}
-Online: {helpb foreach}, {helpb mata}
+Online: {helpb foreach}, {helpb mata}, {helpb python}
 {p_end}
+

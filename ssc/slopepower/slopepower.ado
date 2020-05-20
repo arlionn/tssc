@@ -1,11 +1,11 @@
-*! version 1.0	15May2018
-*! Stephen Nash	stephen.nash@lshtm.ac.uk
-*! Amy Mulick	amy.mulick@lshtm.ac.uk
+*! version 2.0	26March2020
+*! Stephen Nash
 *! Katy Morgan	katy.morgan@lshtm.ac.uk
+*! Amy Mulick	amy.mulick@lshtm.ac.uk
 
 /*
 DESCRIPTION
-Sample size and power calculator for rate outcomes using a mixed model on 
+Sample size and power calculator for slope outcomes using a linear mixed model on 
 data in memory for estimation of key parameters.
 
 slopepower performs a sample size or power calculation for a proposed randomised 
@@ -18,11 +18,11 @@ long format.
 
 The data in memory will not be altered by this program. 
 */
-
+cap prog drop slopepower
 program define slopepower , rclass
 	version 13.0 // Due to use of the -mixed- command, which was introduced in v13
 	syntax varname(max=1) [if], SUBJect(varname) TIMe(varname) SCHEDule(numlist ascending integer >=1) ///
-		[obs NOCONTrols rct  CASEcon(varname) TReat(varname) SCAle(real 1) ITer(integer 16000) Alpha(real 0.05) ///
+		[obs NOCONTrols rct  CASEcon(varname) TReat(varname) SCAle(real 1) ITERate(integer 16000) Alpha(real 0.05) ///
 		 POWer(string) n(string) EFFectiveness(string) DROPouts(numlist >=0) noCONTVar USETrt]
 
 		preserve // We're going to change the data - drop rows and create new vars
@@ -168,10 +168,10 @@ program define slopepower , rclass
 					* If usetrt is not specified effectiveness is as the user inputs, 
 					* Unless not specified, in which case default is used (25%)
 						if "`usetrt'"!="" & "`effectiveness'"!="" { // Both specified
-							dis as error "Only one of usetrt and effectiveness may be specified; not both"
+							dis as error "Only one of usetrt and effectiveness may be specified, not both"
 							exit 184
 						}
-						if "`usetrt'"=="" & "`effectiveness'"=="" local effectiveness 0.25 // Both missing
+						if "`usetrt'"=="" & "`effectiveness'"=="" local effectiveness 0.25 // Both missing; default effectiveness is 0.25
 						* Now check effectivenes is a number >0 and <= 1
 							if "`effectiveness'"!="" { // Effectiveness is specified
 								capture confirm number `effectiveness'
@@ -299,7 +299,7 @@ program define slopepower , rclass
 			**
 			*************************************
 			quietly {
-				tempname nmeas
+				tempname nmeas first_time
 				* Drop if outside the sample to use - shouldn't be necessary
 					drop if !`touse'
 				* Rescale the data
@@ -308,9 +308,11 @@ program define slopepower , rclass
 					drop if missing(`outcome')
 
 				* Make the time var start at 0
-					sum `time'
-					replace `time' = `time' - r(min)
-					if r(min)!=0 dis as error "WARNING: time variable did not start at zero. It has been adjusted to start at zero in the sample size modelling"
+					gen `first_time' = .
+					bysort `subject' (`time') : replace `first_time' = `time'[1]
+					bysort `subject' : replace `time' = `time' - `first_time'
+					sum `first_time'
+					if (r(mean)!=0) | (r(sd)!=0) dis as error "WARNING: time variable did not start at zero for all participants. It has been adjusted to provide a common baseline time in the sample size modelling"
 
 				* Make dummy variables for cases and controls
 				if (`model'==1) {
@@ -335,21 +337,18 @@ program define slopepower , rclass
 			** MODEL SECTION
 			**
 			*************************************
-			quietly {
-			
-			
-			
-				tempname mbeta slope0 slope2 var_slope var_int cov_slopeint var_res var_visit n_in_model
+			quietly {			
+				tempname mbeta slope0 slope2 var_slope var_int cov_slopeint var_res var_visit n_in_model people_in_model observed_difference ngroups tte
 				
 				*************************
 				** MODEL 1 - Cases and controls
 				*************************
 				if `model'==1 {
 					if "`contvar'"=="" { // Controls are allowed a variance parameter
-						capture mixed `outcome' `case'##c.`time'  /// 
+						capture mixed `outcome' `case'##c.`time' , `noconsoption' ///
 							|| `subject': `timecase' `case', cov(uns) nocons ///
 							|| `subject': `timecontrol' `control', cov(uns) nocons ///
-							res(ind, by(`case')) reml iter(`iter')
+							res(ind, by(`case')) reml iterate(`iterate')
 						if _rc!=0 {
 							dis as error "Model failure. Try using the nocontvar option, or see error code (below)."
 							exit _rc
@@ -360,8 +359,12 @@ program define slopepower , rclass
 						}
 						matrix `mbeta'=e(b) // A 1x14 matrix
 						scalar `n_in_model' = e(N)
+						matrix `ngroups' = e(N_g)
+						scalar `people_in_model' = `ngroups'[1,1]
 						scalar `slope0'=`mbeta'[1,3] // fixed time - ie time slope for controls
 						scalar `slope2'=`mbeta'[1,3] + `mbeta'[1,5] // time + case#time interaction - ie time slope for cases
+						scalar `observed_difference' = `slope2' - `slope0'
+						scalar `tte' = -1 * `observed_difference' * `effectiveness'
 						scalar `var_slope'=(exp(`mbeta'[1,7]))^2 // Variance of time for  cases
 						scalar `var_int'=(exp(`mbeta'[1,8]))^2 // Variance of casepos - var of intercept for CASES
 						scalar `cov_slopeint'=tanh(`mbeta'[1,9])*exp(`mbeta'[1,7])*exp(`mbeta'[1,8]) // Covariance of time and casepos = b[1,10] + exp2(b8) + exp2(b9)
@@ -371,7 +374,7 @@ program define slopepower , rclass
 						capture mixed `outcome' `case'##c.`time' /// 
 							|| `subject': `timecase' `case', cov(uns) nocons ///
 							|| `subject': `control', cov(id) nocons ///
-							res(ind, by(`case')) reml iter(`iter') coeflegend
+							res(ind, by(`case')) reml iterate(`iterate') coeflegend
 						if _rc!=0 {
 							dis as error "Model failure. See error code (below)."
 							exit _rc
@@ -382,8 +385,12 @@ program define slopepower , rclass
 						}
 						matrix `mbeta'=e(b) // A 1x12 matrix
 						scalar `n_in_model' = e(N)
+						matrix `ngroups' = e(N_g)
+						scalar `people_in_model' = `ngroups'[1,1]
 						scalar `slope0'=`mbeta'[1,3] // fixed time - ie time slope for controls
 						scalar `slope2'=`mbeta'[1,3] + `mbeta'[1,5] // time + case#time interaction - ie time slope for cases
+						scalar `observed_difference' = `slope2' - `slope0'
+						scalar `tte' = -1 * `observed_difference' * `effectiveness'
 						scalar `var_slope'=(exp(`mbeta'[1,7]))^2 // Variance of time for cases
 						scalar `var_int'=(exp(`mbeta'[1,8]))^2 // Variance of casepos - var of intercept for CASES
 						scalar `cov_slopeint'=tanh(`mbeta'[1,9])*exp(`mbeta'[1,7])*exp(`mbeta'[1,8]) // Covariance of time and casepos = b[1,10] + exp2(b8) + exp2(b9)
@@ -395,7 +402,7 @@ program define slopepower , rclass
 				** 		MODEL 2 - Obs, everyone has the condition
 				*************************
 				else if `model'==2 { // No controls - assume we can get slope (a fraction of the way) to zero
-					capture mixed `outcome' c.`time' || `subject': `time', cov(uns) reml iter(`iter')
+					capture mixed `outcome' c.`time' || `subject': `time', cov(uns) reml iterate(`iterate')
 						if _rc!=0 {
 							dis as error "Model failure. See error code (below)."
 							exit _rc
@@ -406,8 +413,12 @@ program define slopepower , rclass
 						}
 					matrix `mbeta'=e(b)
 					scalar `n_in_model' = e(N)
+					matrix `ngroups' = e(N_g)
+					scalar `people_in_model' = `ngroups'[1,1]
 					scalar `slope0' = 0 // For consistency with other models
 					scalar `slope2'=`mbeta'[1,1]
+					scalar `observed_difference' = `slope2' - `slope0'
+					scalar `tte' = -1 * `observed_difference' * `effectiveness'
 					scalar `var_slope'=(exp(`mbeta'[1,3]))^2 // var(time) in subject
 					scalar `var_int'=(exp(`mbeta'[1,4]))^2 // var(cons) in subject
 					scalar `cov_slopeint'=tanh(`mbeta'[1,5])*exp(`mbeta'[1,3])*exp(`mbeta'[1,4]) 
@@ -419,7 +430,7 @@ program define slopepower , rclass
 				*************************
 				else if `model'==3 {
 					capture mixed `outcome' `time' `placebo'#c.`time' /// 
-						|| `subject': `time', cov(uns) reml iter(`iter')
+						|| `subject': `time', cov(uns) reml iterate(`iterate')
 						if _rc!=0 {
 							dis as error "Model failure. See error code (below)."
 							exit _rc
@@ -428,14 +439,22 @@ program define slopepower , rclass
 							dis as error "Model did not converge"
 							exit 430
 						}
+						* Note we're using a "placebo" variable, hence
+						* slope0 is slope of the TREATED (placebo==0)
+						* slope2 is slope of the UNTREATED, placebo group (placebo=1)
 					matrix `mbeta'=e(b) // A 1x8 matrix
 					scalar `n_in_model' = e(N)
-					scalar `slope0' = 0 // Default option is to ignore the slope for treated
-					if "`usetrt'"!="" { // Use the treatment effect from the RCT
-						scalar `slope0'=`mbeta'[1,1] // ie time slope for treated group (placebo==0)
-						local effectiveness = 1
-					 }
+					matrix `ngroups' = e(N_g)
+					scalar `people_in_model' = `ngroups'[1,1]
 					scalar `slope2'=`mbeta'[1,1] + `mbeta'[1,3] // slope over time - ie time slope for placebo group
+					scalar `observed_difference' = `slope2' - `mbeta'[1,1] // This is for reporting, so we need the actual value
+					scalar `slope0' = 0 // Default option is to ignore the slope for treated
+					if "`usetrt'"!="" { // usetrt is specified; use the treatment effect from the RCT
+						scalar `slope0'=`mbeta'[1,1] // ie time slope for experimental, treated group (placebo==0)
+						local effectiveness = 1
+						scalar `tte' =  -1 * `observed_difference'
+					 }
+					 else scalar `tte' = -1 * `slope2' * `effectiveness'
 					scalar `var_slope'=(exp(`mbeta'[1,5]))^2 // Variance of time 
 					scalar `var_int'=(exp(`mbeta'[1,6]))^2 // Variance of intercept 
 					scalar `cov_slopeint'=tanh(`mbeta'[1,7])*exp(`mbeta'[1,5])*exp(`mbeta'[1,6]) // Covariance of slopes and intercepts
@@ -572,10 +591,12 @@ program define slopepower , rclass
 									  inv(`DSTAR'*`VSTAR'*`DSTAR'')* ///
 									  `DSTAR'*`XSTAR')
 			} // End of quietly
+*
+
 
 			*************************************
 			**
-			** CALCULATE THE RETURN VALUES
+			** CALCULATE THE POWER / SAMPLE SIZE
 			**
 			*************************************
 			quietly {
@@ -583,7 +604,7 @@ program define slopepower , rclass
 					* Slope
 						scalar `es_slope'=`slope2'-`slope0'
 					* Main variance and effect size component
-						scalar `var1' = `FSTAR'[3,3]
+						scalar `var1' = `FSTAR'[3,3] // This is var_tte
 						local part_effsize =  `es_slope' / sqrt(`var1') // use this to get an N (below)
 
 					* Dropout variances and effect size components
@@ -625,78 +646,241 @@ program define slopepower , rclass
 						}
 					
 				if "`usetrt'"!="" local effectiveness = .
-				
-				return scalar var_te = `var1'
-				return scalar te = `es_slope'
-				return scalar effectiveness = `effectiveness'
-				return scalar sampsize = `sampsize'
-				return scalar fupvisits = `vvv'
-				return scalar power = `power'
-				return scalar alpha = `alpha'
-				return scalar obs_in_model = `n_in_model'
-			} // End quietly
+
+			} // close quietly
 
 			*************************************
 			**
-			** MAKE A MATRIX OF RETURN VALUES
+			** OUTPUT SECTION
+			**
+			** Same for all models:
+			**		- matrix
+			**
+			** Separate for each model
+			**		- other return values
+			**		- on-screen text
 			**
 			*************************************
-			quietly {
-				tempname RESULTS
-				mat `RESULTS' = J(1, 8 ,.)
-				mat colnames `RESULTS' = alpha power N N1 N2 effectiveness te var_te
-				mat `RESULTS'[1,1] = `alpha'
-				mat `RESULTS'[1,2] = `power'
-				mat `RESULTS'[1,3] = `sampsize'
-				mat `RESULTS'[1,4] = `sampsize_arm'
-				mat `RESULTS'[1,5] = `sampsize_arm'
-				mat `RESULTS'[1,6] = `effectiveness'
-				mat `RESULTS'[1,7] = `es_slope'
-				mat `RESULTS'[1,8] = `var1'
-				return matrix table = `RESULTS'
-			}
+				quietly { 
+					tempname RESULTS
+					mat `RESULTS' = J(1, 10 ,.)
+					if `model'==1  mat colnames `RESULTS' = alpha power N N1 N2 effectiveness tte var_tte slope_cases slope_controls  // diffnames for diff models
+					if `model'==2  mat colnames `RESULTS' = alpha power N N1 N2 effectiveness tte var_tte slope_cases slope_controls
+					if `model'==3  mat colnames `RESULTS' = alpha power N N1 N2 effectiveness tte var_tte slope_untreated slope_treated
+					mat `RESULTS'[1,1] = `alpha'
+					mat `RESULTS'[1,2] = `power'
+					mat `RESULTS'[1,3] = `sampsize'
+					mat `RESULTS'[1,4] = `sampsize_arm'
+					mat `RESULTS'[1,5] = `sampsize_arm'
+					mat `RESULTS'[1,6] = `effectiveness'
+					mat `RESULTS'[1,7] = `tte'
+					mat `RESULTS'[1,8] = `var1'
+					if `drop_yes'==1 {
+						mat `RESULTS'[1,8] = `sampsize_arm' * (`tte')^2 / (invnormal(1-`alpha'/2)+invnormal(`power'))^2
+					}
+					mat `RESULTS'[1,9] = `slope2'
+					mat `RESULTS'[1,10] = `slope0'
+					if `model'==2 mat `RESULTS'[1,10] = .
+					if `model'==3 & "`usetrt'"=="" mat `RESULTS'[1,10] = .
+					return matrix table = `RESULTS'
+				}
 
-			*************************************
-			**
-			** DISPLAY THE RESULTS
-			**
-			*************************************
-				* The display format depends on whether we are calculating POWER or
-				* a SAMPLE SIZE (N)
-					if "`power_or_n'"=="power" { // Power is given, so we're calculating SAMPLE SIZE
+				*************************
+				** MODEL 1 - Cases and controls
+				*************************
+				if `model'==1 {
+
+					** ** ** ** ** ** ** **
+					**
+					** return values
+							return scalar slope_controls = `slope0'
+							return scalar slope_cases = `slope2'
+							if `drop_yes'==1 {
+								return scalar var_tte = `sampsize_arm' * (`tte')^2 / (invnormal(1-`alpha'/2)+invnormal(`power'))^2 // if there is dropout get tte variance by inverting sample size formula
+							}
+							else {
+								return scalar var_tte = `var1'
+							}
+							return scalar tte = `tte' 
+							return scalar effectiveness = `effectiveness'
+							return scalar sampsize = `sampsize'
+							return scalar fupvisits = `vvv'
+							return scalar power = `power'
+							return scalar alpha = `alpha'
+							return scalar obs_in_model = `n_in_model'
+							return scalar subjects_in_model = `people_in_model'
+
+					** ** ** ** ** ** ** **
+					**
+					** on-screen text
 						display as text _n "Data characteristics:"
-						display as text "    Number of obs in model = " as result `n_in_model'
-						display as text "       Observed difference = " as result `es_slope'
+						display as text "        number of observations in model = " as result `n_in_model'
+						display as text "        number of participants in model = " as result `people_in_model'
+						display as text "          observed difference in slopes = " as result %5.3f `observed_difference'
+						display as text "                         slope of cases = " as result %5.3f `slope2'
+						display as text "              slope of healthy controls = " as result %5.3f `slope0'
 						display as text _n "Parameters for planned study:"
-						display as text "                     alpha =  " as result %6.4f round(`alpha', 0.0001)
-						display as text "                     power =  " as result %6.4f round(`power', 0.0001)
-						display as text "             effectiveness = " as result %4.2f round(`effectiveness', 0.01)
-						display as text "number of follow-up visits = " as result `vvv'
-						display as text "   schedule (and dropouts) : " as result "`sched_string'"
-						display as text "                     scale = " as result `scale'
-						display _n
-						display as text "Estimated sample size:"
-						display as text "                         N = " as result `sampsize'
-						display as text "                 N per arm = " as result `sampsize_arm'
-					}
-				* 
-					if "`power_or_n'"=="n" { // N is given, so we're calculating POWER
+
+						if "`power_or_n'"=="power" { // Power is given, so we're calculating SAMPLE SIZE
+							display as text "                                  alpha = " as result %5.3f round(`alpha', 0.001)
+							display as text "                                  power = " as result %5.3f round(`power', 0.001)
+							display as text "                          effectiveness = " as result %5.3f round(`effectiveness', 0.001)
+							display as text "  target treatment difference in slopes = " as result %5.3f round(`tte', 0.001)
+							display as text "             number of follow-up visits = " as result `vvv'
+							display as text "                schedule (and dropouts) : " as result "`sched_string'"
+							display as text "                                  scale = " as result `scale'
+							display as text _n "  Estimated sample size:"
+							display as text "                                      N = " as result `sampsize'
+							display as text "                              N per arm = " as result `sampsize_arm'
+						}
+						else { // we're calculating POWER
+							display as text "                                  alpha = " as result %5.3f round(`alpha', 0.001)
+							display as text "                            specified N = " as result `given_n'
+							display as text "                               actual N = " as result `actual_n'
+							display as text "                              N per arm = " as result `actual_n' / 2
+							display as text "                          effectiveness = " as result %5.3f round(`effectiveness', 0.001)
+							display as text "  target treatment difference in slopes = " as result %5.3f round(`tte', 0.001)
+							display as text "             number of follow-up visits = " as result `vvv'
+							display as text "                schedule (and dropouts) = " as result "`sched_string'"
+							display as text "                                  scale = " as result `scale'
+							display as text "Estimated power:"
+							display as text "                                  power = " as result %5.3f round(`power', 0.001)
+						}
+				} // end model 1
+
+				*************************
+				** MODEL 2 - Obs, everyone has the condition
+				*************************
+				if `model'==2 {
+
+					** ** ** ** ** ** ** **
+					**
+					** return values
+						return scalar slope_controls = .
+						return scalar slope_cases = `slope2'
+						if `drop_yes'==1 {
+							return scalar var_tte = `sampsize_arm' * (`tte')^2 / (invnormal(1-`alpha'/2)+invnormal(`power'))^2 // if there is dropout get tte variance by inverting sample size formula
+						}
+						else {
+							return scalar var_tte = `var1'
+						}
+						return scalar tte = `tte'
+						return scalar effectiveness = `effectiveness'
+						return scalar sampsize = `sampsize'
+						return scalar fupvisits = `vvv'
+						return scalar power = `power'
+						return scalar alpha = `alpha'
+						return scalar obs_in_model = `n_in_model'
+						return scalar subjects_in_model = `people_in_model'
+
+
+					** ** ** ** ** ** ** **
+					**
+					** on-screen text
 						display as text _n "Data characteristics:"
-						display as text "    Number of obs in model = " as result `n_in_model'
-						display as text "       Observed difference = " as result `es_slope'
+						display as text "        Number of observations in model = " as result `n_in_model'
+						display as text "                  Participants in model = " as result `people_in_model'
+						display as text "                         Slope of cases = " as result %5.3f `slope2'
 						display as text _n "Parameters for planned study:"
-						display as text "                     alpha = " as result %6.4f round(`alpha', 0.0001)
-						display as text "               Specified N = " as result `given_n'
-						display as text "                  Actual N = " as result `actual_n'
-						display as text "                 N per arm = " as result `actual_n' / 2
-						display as text "             effectiveness = " as result %4.2f round(`effectiveness', 0.01)
-						display as text "number of follow-up visits = " as result `vvv'
-						display as text "   schedule (and dropouts) = " as result "`sched_string'"
-						display as text "                     scale = " as result `scale'
-						display _n
-						display as text "Estimated power:"
-						display as text "                    power = " as result %6.4f round(`power', 0.0001)
-					}
+
+						if "`power_or_n'"=="power" { // Power is given, so we're calculating SAMPLE SIZE
+							display as text "                                  alpha = " as result %5.3f round(`alpha', 0.001)
+							display as text "                                  power = " as result %5.3f round(`power', 0.001)
+							display as text "                          effectiveness = " as result %5.3f round(`effectiveness', 0.001)
+							display as text "  target treatment difference in slopes = " as result %5.3f round(`tte', 0.001)
+							display as text "             number of follow-up visits = " as result `vvv'
+							display as text "                schedule (and dropouts) : " as result "`sched_string'"
+							display as text "                                  scale = " as result `scale'
+							display as text _n "  Estimated sample size:"
+							display as text "                                      N = " as result `sampsize'
+							display as text "                              N per arm = " as result `sampsize_arm'
+						}
+						else { // we're calculating POWER
+							display as text "                                  alpha = " as result %5.3f round(`alpha', 0.001)
+							display as text "                            specified N = " as result `given_n'
+							display as text "                               actual N = " as result `actual_n'
+							display as text "                              N per arm = " as result `actual_n' / 2
+							display as text "                          effectiveness = " as result %5.3f round(`effectiveness', 0.001)
+							display as text "  target treatment difference in slopes = " as result %5.3f round(`tte', 0.001)
+							display as text "             number of follow-up visits = " as result `vvv'
+							display as text "                schedule (and dropouts) = " as result "`sched_string'"
+							display as text "                                  scale = " as result `scale'
+							display as text "Estimated power:"
+							display as text "                                  power = " as result %5.3f round(`power', 0.0001)
+						}
+				} // end model 2 display
+
+				*************************
+				** MODEL 3 - RCT (need to separate usetrt and effectiveness
+				*************************
+				if `model'==3 {
+
+					** ** ** ** ** ** ** **
+					**
+					** return values
+						if "`usetrt'" != "" {
+							return scalar slope_treated = `slope0'
+						}
+						else {
+							return scalar slope_treated = .
+						}
+						return scalar slope_untreated = `slope2'
+						if `drop_yes'==1 {
+							return scalar var_tte = `sampsize_arm' * (`tte')^2 / (invnormal(1-`alpha'/2)+invnormal(`power'))^2 // if there is dropout get tte variance by inverting sample size formula
+						}
+						else {
+							return scalar var_tte = `var1'
+						}
+						return scalar tte = `tte'
+						return scalar effectiveness = `effectiveness'
+						return scalar sampsize = `sampsize'
+						return scalar fupvisits = `vvv'
+						return scalar power = `power'
+						return scalar alpha = `alpha'
+						return scalar obs_in_model = `n_in_model'
+						return scalar subjects_in_model = `people_in_model'
+
+					** ** ** ** ** ** ** **
+					**
+					** on-screen text
+						display as text _n "Data characteristics:"
+						display as text "        number of observations in model = " as result `n_in_model'
+						display as text "        number of participants in model = " as result `people_in_model'
+						if "`usetrt'"!="" display as text "          observed difference in slopes = " as result %5.3f `observed_difference'
+						display as text "                   slope of control arm = " as result %5.3f `slope2'
+						if "`usetrt'"!="" display as text "              slope of experimental arm = " as result %5.3f `slope0'
+						display as text _n "Parameters for planned study:"
+
+						if "`power_or_n'"=="power" { // Power is given, so we're calculating SAMPLE SIZE
+							display as text "                                  alpha = " as result %5.3f round(`alpha', 0.001)
+							display as text "                                  power = " as result %5.3f round(`power', 0.001)
+							display as text "                          effectiveness = " as result %5.3f round(`effectiveness', 0.001)
+							display as text "  target treatment difference in slopes = " as result %5.3f round(`tte', 0.001)
+							display as text "             number of follow-up visits = " as result `vvv'
+							display as text "                schedule (and dropouts) : " as result "`sched_string'"
+							display as text "                                  scale = " as result `scale'
+							display as text _n "  Estimated sample size:"
+							display as text "                                      N = " as result `sampsize'
+							display as text "                              N per arm = " as result `sampsize_arm'
+						}
+						else { // we're calculating POWER
+							display as text "                                  alpha = " as result %5.3f round(`alpha', 0.001)
+							display as text "                            specified N = " as result `given_n'
+							display as text "                               actual N = " as result `actual_n'
+							display as text "                              N per arm = " as result `actual_n' / 2
+							display as text "                          effectiveness = " as result %5.3f round(`effectiveness', 0.001)
+							display as text "  target treatment difference in slopes = " as result %5.3f round(`tte', 0.001)
+							display as text "             number of follow-up visits = " as result `vvv'
+							display as text "                schedule (and dropouts) = " as result "`sched_string'"
+							display as text "                                  scale = " as result `scale'
+							display as text "Estimated power:"
+							display as text "                                  power = " as result %5.3f round(`power', 0.001)
+						}
+				} // close model 3
+*
+
+
+
 
 		 * FINAL STEP - RESTORE THE DATA BACK TO HOW WE FOUND IT
 		restore

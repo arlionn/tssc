@@ -1,10 +1,11 @@
+*! Chris Larkin, version 1.0.3
 *! Chris Larkin, version 1.0.2
 *! Nick Cox, version 1.0.1
 
 capture program drop ereplace
 program define ereplace, byable(onecall) sortpreserve
         version 6, missing
-
+		
         local cvers = _caller()
 
         gettoken type 0 : 0, parse(" =(")
@@ -41,6 +42,7 @@ program define ereplace, byable(onecall) sortpreserve
         }
 
         syntax [if] [in] [, *]
+		marksample touse
         if _by() {
                 local byopt "by(`_byvars')"
                 local cma ","
@@ -56,7 +58,7 @@ program define ereplace, byable(onecall) sortpreserve
         if ("`fcn'" == "mode") {
                 local vv : display "version " string(`cvers') ", missing:"
         }
-        capture noisily `vv' _g`fcn' `type' `dummy' = (`args') `if' `in' /*
+        capture noisily `vv' _g`fcn' `type' `dummy' = (`args') if `touse' /*
                 */ `cma' `byopt' `options'
         global EGEN_SVarname
         global EGEN_Varname
@@ -66,5 +68,5 @@ program define ereplace, byable(onecall) sortpreserve
                 local s = cond(r(N)>1,"s","")
                 di in bl "(" r(N) " missing value`s' generated)"
         }
-        replace `name' = `dummy'
+        replace `name' = `dummy' if `touse'
 end

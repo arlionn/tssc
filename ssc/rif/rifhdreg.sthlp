@@ -255,6 +255,10 @@ uncertainty implicit in the estimation of distributional statistics that are
 functions of quantiles (or more specifically, density functions).
 
 {pstd}
+It is also possible to use the Prefix {cmd:svy} for the estimation of Bootstrap Standard
+errors using survey design. This requires having access to Bootstrap weights.
+
+{pstd}
 {cmd:rifhdreg} typed without arguments replays the last results.
 
 
@@ -568,11 +572,8 @@ Heckley, G., U.-G. Gerdtham, and G. Kjellsson. 2016. A general method for decomp
 {browse "https://doi.org/10.1016/j.jhealeco.2016.03.006"}.
 
 {phang}
-Rios-Avila, F. 2019. Recentered influence functions in Stata: Methods for
-analyzing the determinants of poverty and inequality. Working paper 927, Levy
-Economics Institute. {browse "http://www.levyinstitute.org/pubs/wp_927.pdf"}
-or see {browse "https://tinyurl.com/tx75uzl":rif_paper} for latest version.
-
+Rios-Avila, F. 2020. Recentered influence functions (RIFs) in Stata: RIF regression and RIF decomposition.
+Stata Journal, 20(1), 51-94. {browse "https://doi.org/10.1177/1536867X20909690"}. 
 
 {marker Author}{...}
 {title:Author}

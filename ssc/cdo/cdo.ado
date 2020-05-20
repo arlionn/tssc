@@ -1,4 +1,4 @@
-*! Version 2.1.0 7dec2018
+*! Version 2.1.1 14may2020
 * Contact jesse.wursten@kuleuven.be for bug reports/inquiries.
 
 * Changelog
@@ -215,19 +215,3 @@ program define saveoptions
 	di _skip(3) as text "On this PC, " as result `"`name'(`value')"' as text " will now be used even if no " as result "`name'" as text " option was specified for the `programname' command."
 	di _skip(3) as text "In other words, you can now type " as result "`programname'" as text " and it will execute " as result `"`programname', `name'(`value')"' as text " (+ any other saved options)." _newline
 end
-
-
-/* Testing ~~~~~~~~~~~~~~~~~~~~~ 
-cap program drop sayHello
-program define sayHello
-	di "hello world"
-end
-
-cd C:/StataWD
-cdo testprogram.do, a(1 saveurlas) program(sayHello) url("https://hooks.slack.com/services/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") log(C:/StataWD/folder folder/thelog, replace text date) saveurlas(default) // Testing purposes only
-cdo testprogram.do, a(1a saveurlasname) program(sayHello) url("https://hooks.slack.com/services/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") log(C:/StataWD/folder folder/thelog, replace text date) saveurlas(testname) // Testing purposes only
-cdo testprogram.do, a(2 usedefault) log(C:/StataWD/folder folder/thelog, replace text date)
-cdo testprogram.do, a(2b usename) url(testname) log(C:/StataWD/folder folder/thelog, replace text date) // Testing purposes only
-cdo testprogram.do, a(2c usedefault) log(C:/StataWD/folder folder/thelog, replace text date) run
-cdo testprogram.do, a(3 usecustom) program(sayHello) url("https://hooks.slack.com/services/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") log(C:/StataWD/folder folder/thelog, replace text date) // Testing purposes only
-*/

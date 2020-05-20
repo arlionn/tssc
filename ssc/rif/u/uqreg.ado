@@ -4,7 +4,7 @@
 * lets make it so it already allows for multiple Qts? No. Since it uses suest, that cant be done i think.
 * This will be a stand alone comand. I cant call for grif var
 *capture program drop uqreg
-program uqreg, eclass sortpreserve byable(recall)
+program uqreg, eclass sortpreserve byable(recall) properties( svyb )
     if replay() {
 		results_uqr
         exit
@@ -116,8 +116,11 @@ end
 *capture program drop results_uqr
 program results_uqr, eclass
         if "`e(cmd)'"=="uqreg"  {
-		ereturn display
-		display "Distributional Statistic: `e(rif)'"
+			ereturn display
+			display "Distributional Statistic: `e(rif)'"
 		}
-		else display in red "last estimates not found"
+		else {
+		    display in red "last estimates not found"
+			error 301
+		}	
 end

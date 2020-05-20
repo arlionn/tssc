@@ -1,4 +1,6 @@
-*! 3.4.1 Joseph N. Luchman, daniel klein, & NJC 14 January 2020
+*! 4.0.1 Joseph N. Luchman, daniel klein, & NJC 16 May 2020
+*  4.0.0 Joseph N. Luchman, daniel klein, & NJC 1 May 2020
+*  3.4.1 Joseph N. Luchman, daniel klein, & NJC 14 January 2020
 *  3.4.0 Joseph N. Luchman, daniel klein, & NJC 9 January 2020
 *  3.3.1 Joseph N. Luchman, daniel klein, & NJC 20 December 2018
 *  3.3.0 Joseph N. Luchman, daniel klein, & NJC 17 February 2016
@@ -18,11 +20,22 @@ program tuples
         version 10
         local version10_options                                  ///
               CONDitionals(string)                               ///
-              noMata                                             ///
               NCR /* or */ CVP /* or */ KRONECKER /* or */ NAIVE ///
+              noMata                                             ///
               SEEMATA                                       // debug
+        if (c(stata_version) >= 16) {
+            version 16                
+            tuples_assert_python // puts python path into py_path
+            if (`"`py_path'"' == "") local python nopython
+            /* not else */ local version16_options noPYthonopt
+            // yes, we call it -noPYthonOPT; see comment below
+        }
+        else local python nopython
     }
-    else local mata nomata
+    else {
+        local python nopython
+        local mata   nomata
+    }
     
     syntax anything(id = "list")     ///
     [ ,                              ///
@@ -33,12 +46,11 @@ program tuples
         noSort                       ///
         LMACNAME(name local)         /// not documented
         `version10_options'          ///
+        `version16_options'          ///
     ]
     
     tuples_opts_incompatible `asis' `varlist'
-    
     tuples_opts_incompatible `sort' `kronecker' `cvp' `ncr'
-    
     tuples_opts_incompatible `mata' `naive' `kronecker' `cvp' `ncr'
     
     if ( ("`naive'" != "") & ("`sort'" != "nosort") ) {
@@ -71,64 +83,101 @@ program tuples
         local min = `max'
     }
     
+    if ("`ncr'`cvp'`kronecker'`naive'" != "") local python nopython
+    
+    /* 
+        option nopythonopt was included so that users of version 16
+        may specify option -nopython- regardless of whether they 
+        have a -python script--able version of Python installed
+    */
+    if ("`pythonopt'" == "nopythonopt") local python nopython
+    
     if ("`lmacname'" == "") local lmacname tuple
+    else if ( (`"`py_path'"' != "") & ("`python'" != "nopython") ) {
+        display as err "option lmacname() not allowed"
+        exit 198
+    }
     else confirm name _n`lmacname's
     
-    if ("`mata'" == "") mata : tuples() // Mata implementation
-    else if ("`sort'" == "nosort") {
-        // Stata implementation; variation of original algorithm
-        if "`display'" == "" local continue continue
-        local N = 2^`n'-1
-        local k 0
-        forvalues i = 1/`N' {
-            quietly inbase 2 `i'
-            local indicators : display %0`n'.0f `r(base)'
-            local one 0
-            local tuple // void
-            forvalues j = 1/`n' {
-                if substr("`indicators'", `j', 1) == "1" {
-                    if (`++one'>`max') continue , break
-                    if (`one'>1) local tuple `"`tuple' ``j''"'
-                    else         local tuple         `"``j''"'
-                }
-            }
-            if (`one'<`min') | (`one'>`max') continue
-            c_local `lmacname'`++k' `"`tuple'"'
-            `continue'
-            display as res "`lmacname'`k': " as txt `"`tuple'"'
-        }
-        c_local n`lmacname's `k'
+    
+    if ("`python'" != "nopython") {
+        python script `"`py_path'"' ///
+            , args(`min' `max' "`conditionals'" "`sort'" "`display'" `anything')                   
+        // done
     }
+
+    else if ("`mata'" != "nomata") {
+        mata : tuples()
+        // done
+    }
+    
     else {
-        // Stata implementation; original algorithm
-        if "`display'" == "" local qui "*"
-        local imax = 2^`n' - 1
-        local k = 0 
-        forval I = `min'/`max' { 
-            forval i = 1/`imax' { 
-                qui inbase 2 `i'
-                local which `r(base)' 
-                local nzeros = `n' - `: length local which' 
-                local zeros : di _dup(`nzeros') "0" 
-                local which `zeros'`which'  
-                local which : subinstr local which "1" "1", all count(local n1) 
-                if `n1' == `I' {
-                    local out
-                    local space // void
-                    forval j = 1 / `n' { 
-                        local char = substr("`which'",`j',1) 
-                        if `char' {
-                            local out `"`out'`space'``j''"'
-                            local space " "
-                        }
+        // Stata based implemenation
+        if ("`display'" == "") local continue continue
+        local N = 2^`n'-1
+        local k = 0
+        if ("`sort'" == "nosort") {
+            // faster variation of original algorithm
+            forvalues i = 1/`N' {
+                quietly inbase 2 `i'
+                local indicators : display %0`n'.0f `r(base)'
+                local one 0
+                local tuple // void
+                forvalues j = 1/`n' {
+                    if (substr("`indicators'", `j', 1) == "1") {
+                        if (`++one'>`max') continue , break
+                        if (`one'>1) local tuple `"`tuple' ``j''"'
+                        else         local tuple         `"``j''"'
                     }
-                    c_local `lmacname'`++k' `"`out'"'
-                    `qui' di as res "tuple`k': " as txt `"`out'"'
-                }    
-            }     
+                }
+                if (`one'<`min') | (`one'>`max') continue
+                c_local `lmacname'`++k' `"`tuple'"'
+                `continue'
+                display as res "`lmacname'`k': " as txt `"`tuple'"'
+            }
+            // the number of tuples is returned below
         }
+        else {
+            // original algorithm
+            forval I = `min'/`max' { 
+                forval i = 1/`N' { 
+                    qui inbase 2 `i'
+                    local which `r(base)' 
+                     local nzeros = `n' - `: length local which' 
+                    local zeros : di _dup(`nzeros') "0" 
+                    local which `zeros'`which'  
+                    local which : subinstr local which "1" "1", all count(local n1) 
+                    if `n1' == `I' {
+                        local out
+                        local space // void
+                        forval j = 1 / `n' { 
+                            local char = substr("`which'",`j',1) 
+                            if `char' {
+                                local out `"`out'`space'``j''"'
+                                local space " "
+                            }
+                        }
+                        c_local `lmacname'`++k' `"`out'"'
+                        `continue'
+                        display as res "`lmacname'`k': " as txt `"`out'"'
+                    }   
+                }
+            } // end original algorithm
+        } // Stata based implementation
         c_local n`lmacname's `k'
     }
+end
+
+program tuples_assert_python
+    tempname rr
+    _return hold `rr'
+    capture python query
+    if ( !_rc ) { 
+        capture findfile st_tuples_py.py 
+        local py_path `"`r(fn)'"'
+    }
+    _return restore `rr'
+    c_local py_path : copy local py_path
 end
 
 program tuples_opts_incompatible

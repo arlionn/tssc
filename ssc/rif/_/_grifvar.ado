@@ -1,4 +1,7 @@
-*! version 2.6 September 2019 Fernando Rios-Avila
+*! version 2.61 April 2020 Fernando Rios-Avila
+* Minor ineficiencies fixed. Sort when not needed.
+* consider adjusting pvar so is fixed by income level? It may be more important when wages are involved.
+* version 2.6 September 2019 Fernando Rios-Avila
 * Adds options q2 iqr2 iqratio2. This allow for IF=0 when y=q(p)
 * version 2.5 July 2019 Fernando Rios-Avila
 * Add option for userwritten RIF
@@ -120,7 +123,7 @@ program define _grifvar, sortpreserve
 	** RIF of variance
 	if "`var'"!="" {
 		** First need to sort data and get weighted mean by group.
-		sort `touse' `by' `exp' `sortseed'
+		sort `touse' `by'   `sortseed'
 		tempvar mx
 		qui: by `touse' `by': gen double `mx' = sum(`exp'*`weight')/sum(`weight') if `touse'
 		qui: by `touse' `by': gen `typlist' `varlist' = (`exp'-`mx'[_N])^2       if `touse'
@@ -129,7 +132,7 @@ program define _grifvar, sortpreserve
 	** RIF of quantile
 	if "`q'"!="" {
 	  numlist "`q'", min(1) max(1)  range(>0 <100)
-	  sort `touse' `by' `exp' `sortseed'
+	  sort `touse' `by'  `sortseed'
 	  levelsof `by' if `touse', local(nby)
 	  tempvar qvar fqvar
 	   qui:gen `typlist' `varlist'=.
@@ -190,7 +193,7 @@ program define _grifvar, sortpreserve
 		** RIF of quantile2 for ties
 	if "`q2'"!="" {
 	  numlist "`q2'", min(1) max(1)  range(>0 <100)
-	  sort `touse' `by' `exp' `sortseed'
+	  sort `touse' `by'   `sortseed'
 	  levelsof `by' if `touse', local(nby)
 	  tempvar qvar fqvar
 	   qui:gen `typlist' `varlist'=.
@@ -254,7 +257,7 @@ program define _grifvar, sortpreserve
 	 
 	** RIF for interquantile difference
 	if "`iqr'"!="" {
-	  sort `touse' `by' `exp' `sortseed'
+	  sort `touse' `by'  `sortseed'
 	  tempvar qvar fqvar
 	  tempvar qlow qhigh
 	  qui: capture drop `varlist'
@@ -321,7 +324,7 @@ program define _grifvar, sortpreserve
 	 }
 	*** like IQR but allows for ties
 	if "`iqr2'"!="" {
-	  sort `touse' `by' `exp' `sortseed'
+	  sort `touse' `by'   `sortseed'
 	  tempvar qvar fqvar
 	  tempvar qlow qhigh
 	  qui: capture drop `varlist'
@@ -481,7 +484,7 @@ program define _grifvar, sortpreserve
 	** This one is from Choe Van Kerm
 	** Interquartile Ratio 
 	if "`iqratio'"!="" {
-	  sort `touse' `by' `exp' `sortseed'
+	  sort `touse' `by'   `sortseed'
 	  tempvar qvar fqvar
 	  tempvar qlow qhigh
 	  qui: capture drop `varlist'
@@ -526,7 +529,7 @@ program define _grifvar, sortpreserve
 				if "`kernel'"=="cosine" 	local d=(6/(1/6-1/_pi^2)^2)^.2
 				if "`kernel'"=="parze" 		local d=2*(151/35)^.2
 				if "`kernel'"=="rectan" 	local d=(9/2)^.2
-				if "`kernel'"=="triangle" 		local d=24^.2
+				if "`kernel'"=="triangle"   local d=24^.2
 				if "`kernel'"=="triweight" 	local d=(9450/143)^.2
 				*silverman bw
 				local bw=1.3643*`d'*`Nobs'^-.2*`ss'
@@ -546,7 +549,7 @@ program define _grifvar, sortpreserve
 	 
 	*iqratio2 for ties at q(p)
 	if "`iqratio2'"!="" {
-	  sort `touse' `by' `exp' `sortseed'
+	  sort `touse' `by'   `sortseed'
 	  tempvar qvar fqvar
 	  tempvar qlow qhigh
 	  qui: capture drop `varlist'
@@ -802,7 +805,7 @@ program define _grifvar, sortpreserve
 	* Other ESSAMMA indices
 	* watts poverty index can be used with different poverty measures. So assume for now its either a variable or number
 	if "`watts'"!="" {
-	     sort `touse' `by' `exp' `sortseed'
+	     sort `touse' `by'   `sortseed'
 	     by `touse' `by':gen `typlist' `varlist'=ln(`watts'/`exp')*(`watts'>=`exp')
 	}
 	* Sen index
@@ -820,9 +823,9 @@ program define _grifvar, sortpreserve
 		
 		by `touse' `by':gen double `isen'=2/(`sen'*`pvar'[_N])*`cums'[_N]
 		tempvar fzfy intfzfy
-		gen double `fzfy'=`pvar'[_N]-`pvar'
-		gen double `intfzfy'=.
-        by `touse' `by':integ `fzfy' `exp', gen(`intfzfy') replace
+		*by `touse' `by':gen double `fzfy'=`pvar'[_N]-`pvar'
+		*gen double `intfzfy'=.
+        *by `touse' `by':integ `fzfy' `exp', gen(`intfzfy') replace
 		** THE RIF
 		by `touse' `by':gen `typlist' `varlist'=2/(`sen'*`pvar'[_N])*(`sen'*`pvar'[_N]-1/2*`sen'*`isen'-`exp'*`pvar'[_N]+`exp'*`pvar'-`glp')
  
@@ -841,7 +844,7 @@ program define _grifvar, sortpreserve
 	     noisily display "Requires to specify a poverty line using pline() option"
 	     exit
 	   }
-	     sort `touse' `by' `exp' `sortseed'
+
 	   numlist "`pline'", min(1) max(1)  range(>0)
 	    tempvar cum_wt tot_wt pvar cums ptile aptile itip 
  	    by `touse' `by':gen double `cum_wt'=sum(`weight') 
@@ -930,7 +933,7 @@ program define _grifvar, sortpreserve
 	}
 	*** Logaritmic variance
 	if "`logvar'"!="" {
-       sort `touse' `by' `exp' `sortseed'
+       sort `touse' `by' `sortseed'
 	   ** First important stuff 
 	     tempvar v1 v2 mu cum_wt lgvr
           by `touse' `by':gen double `cum_wt'=sum(`weight') 

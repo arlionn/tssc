@@ -6,7 +6,7 @@
 {title:Title}
 
 {p2colset 5 15 17 2}{...}
-{p2col :{cmd:hvar()} {hline 2}}Extension to generate recentered influence
+{p2col :{cmd:hvar()} {hline 2}}Extension to generates recentered influence
 function for half-variance{p_end}
 {p2colreset}{...}
 

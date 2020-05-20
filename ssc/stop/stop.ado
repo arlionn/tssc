@@ -1,5 +1,5 @@
 * Convenient program stopper
-*! Version 1.0.0 26jun2018
+*! Version 1.0.1 14may2020
 * Contact jesse.wursten@kuleuven.be for bug reports/inquiries.
 
 * Changelog

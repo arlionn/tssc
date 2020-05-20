@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.3.2  05nov18}{...}
+{* *! version 1.3.3  05nov18}{...}
 {findalias asfradohelp}{...}
 {title:sendtoslack}
 
@@ -107,23 +107,23 @@ Those using older versions should install curl and use the {it: method(curl)} op
 {phang}{cmd:sendtoslack}{p_end}
 
 * Send default message to #webhooks channel (explicitly enter URL)
-{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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)}{p_end}
+{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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)}{p_end}
 
 * Send custom message to #webhooks channel (..)
-{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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) message("Regression one has been completed.")}{p_end}
+{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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) message("Regression one has been completed.")}{p_end}
 
 * Use saveurlas
 ** Store a url in profile.do (default)
-{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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) saveurlas(default)}{p_end}
+{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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) saveurlas(default)}{p_end}
 
 ** Send custom message to stored url 
 {phang}{cmd:sendtoslack, message("Regression one has been completed.")}{p_end}
 
 ** Store a url in profile.do (custom)
-{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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) saveurlas(theAuthor)}{p_end}
+{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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) saveurlas(theAuthor)}{p_end}
 
 * Send a message to someone else (me)
-{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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) m(This program is the best!)}{p_end}
+{phang}{cmd:sendtoslack, url(https://hooks.slack.com/services/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) m(This program is the best!)}{p_end}
 
 * Send a message to someone else (me), using the stored url
 {phang}{cmd:sendtoslack, url(theAuthor) m(This program is the best!)}{p_end}

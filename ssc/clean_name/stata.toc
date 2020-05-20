@@ -22,6 +22,7 @@ p ccmpre module to compute PRE Measures for Cultural Consensus Models
 p cctable module to calculate summary table for case-control study
 p ccweight module to generate inverse sampling probability weights
 p cddens module to estimate a Density under Measurement Error using Auxiliary Information
+p cdecompose module to estimate canonical permanent-transitory state space models
 p cdfplot module to plot a cumulative distribution function
 p cdfquantreg module for estimating generalized linear models for doubly-bounded random variables with cdf-quantile distributions
 p cdo module to get an update when the dofile stalls 
@@ -112,6 +113,7 @@ p cluster2 module to perform power analysis for two-level cluster randomized tri
 p cluster3 module to perform power analysis for up to three-level cluster randomized trial
 p clusterbs module to perform a pairs symmetric cluster bootstrap-t procedure
 p clustergram module to produce graph for visualizing hierarchical and non-hierarchical cluster analyses
+p clustersampsim module to simulate cluster-randomized trial sample size requirements 
 p clustpop module to estimate population cluster group assignments
 p clustse module to estimate the statistical significance of parameters when the data is clustered with a small number of clusters
 p clustsens module to perform sensitivity analysis for cluster commands

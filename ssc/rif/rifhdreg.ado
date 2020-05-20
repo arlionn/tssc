@@ -23,7 +23,7 @@
 * Easy solution. Capture weights, and add option svy. Seems to work.
 
 *capture program drop rifhdreg
-program rifhdreg, eclass sortpreserve byable(recall)
+program rifhdreg, eclass sortpreserve byable(recall) properties( svyb ) 
     if replay() {
 		results
         exit
@@ -40,7 +40,7 @@ syntax anything [if] [in] [aw fw iw pw], rif(str)  [,* ] ///
 	 svy /// allows using SVY for regressions.
 	 ]
  marksample touse
- markout   `touse' `anything' `abs' `rwprobit' `rwlobit' 
+ markout   `touse' `anything' `abs' `rwprobit' `rwlobit' `over' `rwmprobit' `rwmlogit' 
 
 if "`svy'"=="" { 
 qui {
@@ -304,16 +304,19 @@ capture program drop svyrifhdreg
 capture program drop results
 program results, eclass
         if "`e(cmd)'"=="rifhdreg" & "`e(cmd2)'"=="" {
-		reg
-		display "Distributional Statistic: `e(rif)'"
-		display "Sample Mean	RIF `e(rif)' : "  in ye %7.5g e(rifmean)
+			reg
+			display "Distributional Statistic: `e(rif)'"
+			display "Sample Mean	RIF `e(rif)' : "  in ye %7.5g e(rifmean)
 		}
 		else if "`e(cmd)'"=="rifhdreg" & "`e(cmd2)'"=="rifhdreg2"  {
-		ereturn local cmd ="reghdfe"
-		reghdfe
-		ereturn local cmd="rifhdreg"
-		display "Distributional Statistic: `e(rif)'"
-		display "Sample Mean	RIF `e(rif)' : "  in ye %7.5g e(rifmean)
+			ereturn local cmd ="reghdfe"
+			reghdfe
+			ereturn local cmd="rifhdreg"
+			display "Distributional Statistic: `e(rif)'"
+			display "Sample Mean	RIF `e(rif)' : "  in ye %7.5g e(rifmean)
 		}
-		else display in red "last estimates not found"
+		else {
+			display in red "last estimates not found"
+			error 301
+		}
 end

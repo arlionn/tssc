@@ -166,10 +166,8 @@ All errors are my own.
 {title:Reference}
 
 {phang}
-Rios-Avila, F. 2019. Recentered influence functions in Stata: Methods for
-analyzing the determinants of poverty and inequality. Working paper 927, Levy
-Economics Institute. {browse "http://www.levyinstitute.org/pubs/wp_927.pdf"}
-or see {browse "https://tinyurl.com/tx75uzl":rif_paper} for latest version.
+Rios-Avila, F. 2020. Recentered influence functions (RIFs) in Stata: RIF regression and RIF decomposition.
+Stata Journal, 20(1), 51-94. {browse "https://doi.org/10.1177/1536867X20909690"}. 
 
 
 {marker Author}{...}

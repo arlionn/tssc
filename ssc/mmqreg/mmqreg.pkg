@@ -1,10 +1,10 @@
 d 'MMQREG': module to estimate quantile regressions via Method of Moments
 d
-d    'mmqreg' estimates quantile regressions using the method of
+d   mmqreg estimates quantile regressions using the method of
 d moments as proposed by  Machado and Santos Silva (J.
-"d Econometrics, 2019). In contrast with -xtqreg-, this command"
-d allows for the estimation of quantile regressions without fixed
-"d effects, as well as when multiple fixed effects are used."
+"d Econometrics, 2019). In contrast with xtqreg, this command allows"
+"d for the estimation of quantile regressions without fixed effects,"
+d as well as when multiple fixed effects are used.
 d
 d KW: qreq
 d KW: xtqreg
@@ -14,7 +14,7 @@ d KW: predict
 d
 "d Requires: Stata version 13 and hdfe, ftools from SSC (q.v.)"
 d
-d Distribution-Date: 20200401
+d Distribution-Date: 20200510
 d
 "d Author: Fernando Rios-Avila, Levy Economics Institute of Bard College"
 d Support: email friosavi@@levy.org

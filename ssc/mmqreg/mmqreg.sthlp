@@ -65,6 +65,11 @@ The theoretical properties of this estimates, however, have not been verfied. Fo
 {phang2}
 {stata webuse nlswork, clear}{p_end}
 
+{pstd}You will also need this command to be installed{p_end}
+{phang2}{stata ssc install xtqreg}{p_end}
+{phang2}{stata ssc install ftools}{p_end}
+{phang2}{stata ssc install hdfe}{p_end}
+
 {pstd}Median regression with fixed effects for idcode. Using {cmd:xtqreg} {p_end}
 {phang2}
 {stata xtqreg ln_w   age c.age#c.age ttl_exp c.ttl_exp#c.ttl_exp tenure c.tenure#c.tenure   not_smsa south, i(idcode) ls}{p_end}

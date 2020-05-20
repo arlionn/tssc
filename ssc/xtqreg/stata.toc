@@ -1,3 +1,4 @@
+p xauto module to input an extended version of the auto data
 p xb2pi module to transform the logit scores into probabilities
 p xbalance module to compute standardized differences for stratified comparisons via R
 p xbrcspline module to tabulate differences in predicted responses after restricted cubic spline models

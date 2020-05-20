@@ -1,8 +1,9 @@
 * Command to send messages to slack
-*! Version 1.3.2  05nov18
+*! Version 1.3.3  14may2020
 * Contact jesse.wursten@kuleuven.be for bug reports/inquiries.
 
 * Changelog
+** 14may20: Fixed default URL again (Slack decided to kill the previous one)
 ** 05nov18: Default url updated (see item below)
 ** 29oct18: Help file updated (someone removed the existing webhook)
 ** 26jun18: Cosmetic changes and better integration with other commands
@@ -53,7 +54,7 @@ program define sts_Send
 	if "`url'" == "" & "$sts_default" == "" {
 		di as text "No url provided and no url saved. Sending test message to the stataMessage workspace."
 		di as text "Accessible at: " as result "https://statamessage.slack.com/messages/C6WSHNXM1/"
-		local url "https://hooks.slack.com/services/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"
+		local url "https://hooks.slack.com/services/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"
 	}
 	
 	** Fill in empty message

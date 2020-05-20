@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.3.0  26jun2018}{...}
+{* *! version 1.0.1  14may2020}{...}
 {findalias asfradohelp}{...}
 {title:stop}
 
@@ -74,17 +74,17 @@ file. A simple {cmd:stop} without any options would then send the correct messag
 
 {pstd}Stop dofile, close all logs and send a message to Slack{p_end}
 {phang2}{cmd:. log using temp, replace}{p_end}
-{phang2}{cmd:. stop, sts(https://hooks.slack.com/services/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)}{p_end}
+{phang2}{cmd:. stop, sts(https://hooks.slack.com/services/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)}{p_end}
 
 {pstd}Stop dofile, close specific log and send a custom message{p_end}
 {phang2}{cmd:. log using temp, replace name(keepRunning)}{p_end}
 {phang2}{cmd:. log using temp2, replace name(closeThisOne)}{p_end}
-{phang2}{cmd:. stop, message(A custom message) logfile(closeThisOne) sts(https://hooks.slack.com/services/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)}{p_end}
+{phang2}{cmd:. stop, message(A custom message) logfile(closeThisOne) sts(https://hooks.slack.com/services/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)}{p_end}
 {phang2}{cmd:. log close keepRunning}{p_end}
 
 {pstd}Save sts url and message (will not stop program or close logfiles){p_end}
 {phang2}{cmd:. log using temp, replace}{p_end}
-{phang2}{cmd:. stop, save m(This is a saved custom message!) sts(https://hooks.slack.com/services/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)}{p_end}
+{phang2}{cmd:. stop, save m(This is a saved custom message!) sts(https://hooks.slack.com/services/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)}{p_end}
 {phang2}{cmd:. log close _all}{p_end}
 
 {pstd}Use saved url and message{p_end}

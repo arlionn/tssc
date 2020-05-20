@@ -1,5 +1,5 @@
 {smcl}
-{* 31jan2019}{...}
+{* 10may2020}{...}
 {hi:help colorpalette}{...}
 {right:{browse "http://repec.sowi.unibe.ch/stata/palettes/"}}
 {hline}
@@ -18,6 +18,7 @@
 {p 8 15 2}
     {cmd:colorpalette} [{it:argument}]
         [{cmd:,} {help colorpalette##opts:{it:palette_options}}
+        {help colorpalette##globopts:{it:globals_option}}
         {help colorpalette##gopts:{it:graph_options}} ]
 
 {pstd}
@@ -77,13 +78,14 @@ or {cmd:.} to insert a gap.
 {syntab:Collections}
 {synopt:{it:{help colorpalette##cbrew:colorbrewer}}}ColorBrewer palettes from {browse "http://colorbrewer2.org":colorbrewer2.org}{p_end}
 {synopt:{it:{help colorpalette##viridis:viridis}}}perceptually uniform colormaps from {browse "http://matplotlib.org":matplotlib.org}{p_end}
-{synopt:{helpb colorpalette##matplotlib:matplotlib}}other colormaps from {browse "http://matplotlib.org":matplotlib.org}{p_end}
+{synopt:{helpb colorpalette##matplotlib:{ul:matplot}lib}}other colormaps from {browse "http://matplotlib.org":matplotlib.org}{p_end}
 {synopt:{helpb colorpalette##ptol:ptol}}color schemes from Tol (2012){p_end}
 {synopt:{helpb colorpalette##d3:d3}}categorical color schemes from {browse "http://d3js.org/":D3.js}{p_end}
 {synopt:{helpb colorpalette##lin:lin}}semantic colors schemes by Lin et al. (2013){p_end}
 {synopt:{helpb colorpalette##spmap:spmap}}color schemes from {cmd:spmap} by Pisati (2007){p_end}
 {synopt:{helpb colorpalette##sfso:sfso}}color schemes used by the Swiss Federal
     Statistical Office{p_end}
+{synopt:{helpb colorpalette##webc:{ul:web}colors}}categorical web colors from {browse "https://www.w3schools.com/colors/colors_names.asp":www.w3schools.com}{p_end}
 
 {syntab:Custom}
 {synopt:{it:{help colorpalette##myname:myname}}}custom palette provided by program {cmd:colorpalette_}{it:myname}{p_end}
@@ -117,7 +119,7 @@ or {cmd:.} to insert a gap.
     {p_end}
 {synopt:{helpb colorpalette##gscale:{ul:gs}cale{sf:[}({it:spec}){sf:]}}}convert to grayscale
     {p_end}
-{synopt:{helpb colorpalette##cblind:{ul:cb}lind{sf:[}({it:spec}){sf:]}}}simulate color vision deficiency
+{synopt:{helpb colorpalette##cblnd:{ul:cb}lind{sf:[}({it:spec}){sf:]}}}simulate color vision deficiency
     {p_end}
 {synopt:{help colorpalette##other:{it:other}}}palette-specific options
     {p_end}
@@ -128,6 +130,14 @@ or {cmd:.} to insert a gap.
 {synopt:{helpb colorpalette##noexpand:noexpand}}omit automatic interpolation/recycling
     {p_end}
 {synopt:{helpb colorpalette##class:class({it:class})}}set palette class
+    {p_end}
+{synoptline}
+
+
+{synoptset 20 tabbed}{...}
+{marker globopts}{synopthdr:globals_option}
+{synoptline}
+{synopt:{helpb colorpalette##globals:{ul:gl}obals{sf:[}({it:spec}){sf:]}}}store color codes in global macros
     {p_end}
 {synoptline}
 
@@ -151,6 +161,8 @@ or {cmd:.} to insert a gap.
     (if available)
     {p_end}
 {synopt:{helpb colorpalette##nograph:{ul:nogr}aph}}do not generate a graph
+    {p_end}
+{synopt:{helpb colorpalette##graph:graph}}enforce crating the graph
     {p_end}
 
 {syntab:Syntax 2 only}
@@ -234,8 +246,8 @@ or {cmd:.} to insert a gap.
     opacity levels is smaller than the number of colors, the levels will be
     recycled; if the number of opacity levels is larger than the number of
     colors, the colors will be recycled. To skip assigning opacity to a
-    particular color, you may set the corresponding element to 
-    {cmd:.} (missing). {cmd:opacity()} will be applied after {cmd:n()}, {cmd:select()}, 
+    particular color, you may set the corresponding element to
+    {cmd:.} (missing). {cmd:opacity()} will be applied after {cmd:n()}, {cmd:select()},
     {cmd:order()}, and {cmd:reverse} have been applied.
 
 {marker intensity}{...}
@@ -258,15 +270,15 @@ or {cmd:.} to insert a gap.
 
 {marker ipolate}{...}
 {phang}
-    {cmd:ipolate(}{it:n}[{cmd:,} {it:suboptions}]{cmd:)} 
+    {cmd:ipolate(}{it:n}[{cmd:,} {it:suboptions}]{cmd:)}
     interpolates the colors to a total of {it:n} colors. {cmd:ipolate()}
     will be applied after {cmd:n()}, {cmd:select()}, {cmd:order()}, {cmd:reverse},
-    {cmd:opacity()}, and {cmd:intensity()} have been applied (intensity multipliers 
+    {cmd:opacity()}, and {cmd:intensity()} have been applied (intensity multipliers
     and opacity levels, if defined, will also be interpolated).
-    
+
 {pmore}
     Example: {stata colorpalette cranberry dkorange, ipolate(5)}
-    
+
 {pmore}
     Suboptions are as follows.
 
@@ -276,14 +288,14 @@ or {cmd:.} to insert a gap.
     CIECAM02-based J'a'b'). Other possibilities are, for example, {cmd:RGB}, {cmd:lRGB},
     {cmd:Lab}, {cmd:LCh}, {cmd:Luv}, {cmd:HCL}, {cmd:JMh}, or {cmd:HSV}; see
     help {helpb colrspace##ipolate:colrspace} for details.
-    
+
 {pmore2}
     Example: {stata "colorpalette: #fafa6e #2a4858, ipolate(10) / #fafa6e #2a4858, ipolate(10, JMh)"}
 
 {phang2}
     {opt ra:nge(lb [ub])} sets the interpolation range, where {it:lb} and
     {it:ub} are the lower and upper bounds. The default is {cmd:range(0 1)}. If
-    {it:lb} is larger than {it:ub}, the colors are returned in reverse 
+    {it:lb} is larger than {it:ub}, the colors are returned in reverse
     order. Extrapolation will be applied if the specified range exceeds [0,1].
 
 {pmore2}
@@ -297,8 +309,8 @@ or {cmd:.} to insert a gap.
     between two colors, this means that the first color will dominate most of
     the interpolation range (slow to fast transition). A value between 0 and 1
     squishes the positions towards the upper bound, thus making the second
-    color the dominant color for most of the range (fast to slow 
-    transition). Another way to think of the effect of {cmd:power()} is that 
+    color the dominant color for most of the range (fast to slow
+    transition). Another way to think of the effect of {cmd:power()} is that
     it moves the center of the color gradient up (if # > 1) or down (if 0 < # < 1).
 
 {pmore2}
@@ -309,12 +321,12 @@ or {cmd:.} to insert a gap.
     with respect to the interpolation range. The default is to arrange them on
     a regular grid from 0 and 1. If the number of specified positions is smaller
     than the number of origin colors, default positions are used for the
-    remaining colors. If the same position is specified for multiple 
+    remaining colors. If the same position is specified for multiple
     colors, these colors will be averaged before applying interpolation.
 
 {pmore2}
     Example: {stata "colorpalette: Black Crimson Gold, ipolate(30, position(0 .3 1)) / Black Crimson Gold, ipolate(30, position(0 .7 1))"}
-    
+
 {phang2}
     {opt pad:ded} requests padded interpolation. By
     default, the first color and the last color are taken as the end points of
@@ -325,9 +337,9 @@ or {cmd:.} to insert a gap.
     first color and the last color to be affected by the interpolation.
 
 {pmore2}
-    Example (the difference is subtle, but the padded variant is a bit darker at the 
-    bottom and the top, which represents the original 11-color scale better 
-    than the unpadded variant): 
+    Example (the difference is subtle, but the padded variant is a bit darker at the
+    bottom and the top, which represents the original 11-color scale better
+    than the unpadded variant):
 
 {p 16 18 2}
     . {stata "colorpalette, span vertical: BrBG / BrBG, ipolate(30) / BrBG, ipolate(30, padded)"}
@@ -343,11 +355,11 @@ or {cmd:.} to insert a gap.
     the number of colors, the values will be recycled; if the number of
     values is larger than the number of colors, the colors will be
     recycled. To skip adjusting the intensity of a particular color, you may
-    set the corresponding element to {cmd:.} (missing). {cmd:intensify()} will 
+    set the corresponding element to {cmd:.} (missing). {cmd:intensify()} will
     be applied after {cmd:ipolate()} has been applied.
 
 {pmore}
-    {cmd:intensify()} applies the same kind of intensity adjustment as  
+    {cmd:intensify()} applies the same kind of intensity adjustment as
     implemented by the intensity adjustment multipliers set by {cmd:intensity()}.
     The difference between {cmd:intensify()} and {cmd:intensity()} is that
     {cmd:intensity()} only records the intensity multipliers (which are then
@@ -370,7 +382,7 @@ or {cmd:.} to insert a gap.
     larger than the number of colors, the colors will be recycled. To skip
     adjusting the saturation of a particular color, you may set the
     corresponding element to {cmd:.} (missing). {cmd:saturate()} will be
-    applied after {cmd:ipolate()} has been applied. Suboptions are as 
+    applied after {cmd:ipolate()} has been applied. Suboptions are as
     follows.
 
 {phang2}
@@ -400,14 +412,14 @@ or {cmd:.} to insert a gap.
     larger than the number of colors, the colors will be recycled. To skip
     adjusting the luminance of a particular color, you may set the
     corresponding element to {cmd:.} (missing). {cmd:luminate()} will be
-    applied after {cmd:ipolate()} has been applied. Suboptions are as 
+    applied after {cmd:ipolate()} has been applied. Suboptions are as
     follows.
 
 {phang2}
     {it:space} specifies the color space in which the colors are manipulated.
     Possible spaces are {cmd:Lab} (CIE L*a*b*), {cmd:Luv} (CIE L*u*v*),
     {cmd:JCh} (CIECAM02 JCh), and {cmd:JMh} (CIECAM02-based J'M'h) ({cmd:LCh},
-    {cmd:HCL}, and {cmd:Jab} are also allowed, but result in the same colors as 
+    {cmd:HCL}, and {cmd:Jab} are also allowed, but result in the same colors as
     {cmd:Lab}, {cmd:Luv}, and {cmd:JMh}, respectively). The
     default is {cmd:JMh}.
 
@@ -440,7 +452,7 @@ or {cmd:.} to insert a gap.
 {p 12 16 2}
     . {stata "colorpalette: s2 / s2, gscale(.5) / s2, gscale"}
 
-{marker cblind}{...}
+{marker cblnd}{...}
 {phang}
     {cmd:cblind}[{cmd:(}{it:severity} [{cmd:,} {it:type} ]{cmd:)}]
     simulates color vision deficiency, where {it:severity} in [0,1] specifies the severity
@@ -457,12 +469,12 @@ or {cmd:.} to insert a gap.
 {marker other}{...}
 {phang}
     {it:other} are additional palette-specific options. See the descriptions of
-    the palettes below. Palette-specific options have to be unique, that is, they 
+    the palettes below. Palette-specific options have to be unique, that is, they
     can only be specified once per palette. When collecting results from multiple
     palettes, palette options can be specified at the global level, to define
-    default settings for all palettes, or at the local level of an individual 
-    palette. For general palette options, defaults set at the global 
-    level can be overridden by repeating an option at the local level. Such 
+    default settings for all palettes, or at the local level of an individual
+    palette. For general palette options, defaults set at the global
+    level can be overridden by repeating an option at the local level. Such
     repetitions are not allowed for palette-specific options.
 
 {marker forcergb}{...}
@@ -485,6 +497,31 @@ or {cmd:.} to insert a gap.
     other palettes will be interpolated (if recycling or interpolation is
     necessary). Specifying {cmd:class()} only affects palettes that do not set
     the class as part of their definition.
+
+{marker globals}{...}
+{dlgtab:Globals option}
+
+{phang}
+    {cmd:globals}[{cmd:(}{it:spec}{cmd:)}] stores the color codes as {helpb global} macros
+    so that they can be used in subsequent graph commands. Use this option
+    as an alternative to obtaining the color codes from {helpb colorpalette##returns:r()}; see
+    the {help colorpalette##examples:example} below. The
+    syntax of {it:spec} is
+
+            [{it:namelist}] [{it:stub}{cmd:*}] [{cmd:,} {opt p:refix(prefix)} {opt s:uffix(suffix)} {opt non:ames} ]
+
+{pmore}
+    where {it:namelist} provides custom names for the globals,
+    {it:stub}{cmd:*} provides a stub for automatic names,
+    {cmd:prefix()} specifies a prefix to be added to the names, {cmd:suffix()} specifies a suffix, 
+    and {cmd:nonames} prevents {cmd:colorpalette} from using the names found in the
+    palette definition. The default {it:stub} is {cmd:p} or as set by {cmd:prefix()}. The
+    globals for colors for which no name is available will be named as
+    {it:stub}{it:#}{it:suffix}, where {it:#} is the number of the color.
+
+{pmore}
+    Note that graph display is disabled if the {cmd:globals()} option is
+    specified. Specify option {cmd:graph} to enforce graph display.
 
 {dlgtab:Graph options}
 
@@ -514,6 +551,12 @@ or {cmd:.} to insert a gap.
 {marker nograph}{...}
 {phang}
     {opt nograph} suppresses the graph (syntax 1 only).
+
+{marker graph}{...}
+{phang}
+    {opt graph} enforces creating a graph even though option {helpb colorpalette##globals:globals()}
+    has been specified (syntax 1 only). By default, no graph is shown if {helpb colorpalette##globals:globals()}
+    has been specified.
 
 {marker horizontal}{...}
 {phang}
@@ -608,17 +651,17 @@ or {cmd:.} to insert a gap.
 
 {pstd}
     Supported are the standard web colors listed at
-    {browse "https://www.w3schools.com/colors/colors_names.asp":www.w3schools.com}. The 140 color
+    {browse "https://www.w3schools.com/colors/colors_names.asp":www.w3schools.com}. The 148 color
     names, sorted by color groups, are as follows.
 
 {phang}
-    Pink colors ({stata colorpalette webcolors_pink, title(Pink colors) nonumbers:{it:view}}):{p_end}
+    Pink colors ({stata colorpalette webcolors, pink nonumbers:{it:view}}):{p_end}
 {pmore}
     {cmd:Pink}, {cmd:LightPink}, {cmd:HotPink}, {cmd:DeepPink},
     {cmd:PaleVioletRed}, {cmd:MediumVioletRed}
 
 {phang}
-    Purple colors ({stata colorpalette webcolors_purple, title(Purple colors) nonumbers:{it:view}}):{p_end}
+    Purple colors ({stata colorpalette webcolors, purple nonumbers:{it:view}}):{p_end}
 {pmore}
     {cmd:Lavender}, {cmd:Thistle}, {cmd:Plum}, {cmd:Orchid}, {cmd:Violet},
     {cmd:Fuchsia}, {cmd:Magenta}, {cmd:MediumOrchid}, {cmd:DarkOrchid},
@@ -627,21 +670,21 @@ or {cmd:.} to insert a gap.
     {cmd:DarkSlateBlue}, {cmd:RebeccaPurple}, {cmd:Indigo}
 
 {phang}
-    Red and orange colors ({stata colorpalette webcolors_redorange, title(Red and orange colors) nonumbers:{it:view}}):{p_end}
+    Red and orange colors ({stata colorpalette webcolors, redorange nonumbers:{it:view}}):{p_end}
 {pmore}
     {cmd:LightSalmon}, {cmd:Salmon}, {cmd:DarkSalmon}, {cmd:LightCoral},
     {cmd:IndianRed}, {cmd:Crimson}, {cmd:Red}, {cmd:FireBrick}, {cmd:DarkRed},
     {cmd:Orange}, {cmd:DarkOrange}, {cmd:Coral}, {cmd:Tomato}, {cmd:OrangeRed}
 
 {phang}
-    Yellow colors ({stata colorpalette webcolors_yellow, title(Yellow colors) nonumbers:{it:view}}):{p_end}
+    Yellow colors ({stata colorpalette webcolors, yellow nonumbers:{it:view}}):{p_end}
 {pmore}
     {cmd:Gold}, {cmd:Yellow}, {cmd:LightYellow}, {cmd:LemonChiffon},
     {cmd:LightGoldenRodYellow}, {cmd:PapayaWhip}, {cmd:Moccasin}, {cmd:PeachPuff},
     {cmd:PaleGoldenRod}, {cmd:Khaki}, {cmd:DarkKhaki}
 
 {phang}
-    Green colors ({stata colorpalette webcolors_green, title(Green colors) nonumbers:{it:view}}):{p_end}
+    Green colors ({stata colorpalette webcolors, green nonumbers:{it:view}}):{p_end}
 {pmore}
     {cmd:GreenYellow}, {cmd:Chartreuse}, {cmd:LawnGreen}, {cmd:Lime},
     {cmd:LimeGreen}, {cmd:PaleGreen}, {cmd:LightGreen}, {cmd:MediumSpringGreen},
@@ -651,13 +694,13 @@ or {cmd:.} to insert a gap.
     {cmd:LightSeaGreen}, {cmd:DarkCyan}, {cmd:Teal}
 
 {phang}
-    Cyan colors ({stata colorpalette webcolors_cyan, title(Cyan colors) nonumbers:{it:view}}):{p_end}
+    Cyan colors ({stata colorpalette webcolors, cyan nonumbers:{it:view}}):{p_end}
 {pmore}
     {cmd:Aqua}, {cmd:Cyan}, {cmd:LightCyan}, {cmd:PaleTurquoise}, {cmd:Aquamarine},
     {cmd:Turquoise}, {cmd:MediumTurquoise}, {cmd:DarkTurquoise}
 
 {phang}
-    Blue colors ({stata colorpalette webcolors_blue, title(Blue colors) nonumbers:{it:view}}):{p_end}
+    Blue colors ({stata colorpalette webcolors, blue nonumbers:{it:view}}):{p_end}
 {pmore}
     {cmd:CadetBlue}, {cmd:SteelBlue}, {cmd:LightSteelBlue}, {cmd:LightBlue},
     {cmd:PowderBlue}, {cmd:LightSkyBlue}, {cmd:SkyBlue}, {cmd:CornflowerBlue},
@@ -665,7 +708,7 @@ or {cmd:.} to insert a gap.
     {cmd:MediumBlue}, {cmd:DarkBlue}, {cmd:Navy}, {cmd:MidnightBlue}
 
 {phang}
-    Brown colors ({stata colorpalette webcolors_brown, title(Brown colors) nonumbers:{it:view}}):{p_end}
+    Brown colors ({stata colorpalette webcolors, brown nonumbers:{it:view}}):{p_end}
 {pmore}
     {cmd:Cornsilk}, {cmd:BlanchedAlmond}, {cmd:Bisque}, {cmd:NavajoWhite},
     {cmd:Wheat}, {cmd:BurlyWood}, {cmd:Tan}, {cmd:RosyBrown}, {cmd:SandyBrown},
@@ -673,7 +716,7 @@ or {cmd:.} to insert a gap.
     {cmd:SaddleBrown}, {cmd:Sienna}, {cmd:Brown}, {cmd:Maroon}
 
 {phang}
-    White colors ({stata colorpalette webcolors_white, title(White colors) nonumbers:{it:view}}):{p_end}
+    White colors ({stata colorpalette webcolors, white nonumbers:{it:view}}):{p_end}
 {pmore}
     {cmd:White}, {cmd:Snow}, {cmd:HoneyDew}, {cmd:MintCream}, {cmd:Azure},
     {cmd:AliceBlue}, {cmd:GhostWhite}, {cmd:WhiteSmoke}, {cmd:SeaShell},
@@ -681,10 +724,15 @@ or {cmd:.} to insert a gap.
     {cmd:Linen}, {cmd:LavenderBlush}, {cmd:MistyRose}
 
 {phang}
-    Grey colors ({stata colorpalette webcolors_grey, title(Grey colors) nonumbers:{it:view}}):{p_end}
+    Gray colors ({stata colorpalette webcolors, gray nonumbers:{it:view}}):{p_end}
 {pmore}
-    {cmd:Gainsboro}, {cmd:LightGray}, {cmd:Silver}, {cmd:DarkGray}, {cmd:DimGray},
-    {cmd:Gray}, {cmd:LightSlateGray}, {cmd:SlateGray}, {cmd:DarkSlateGray},
+    {cmd:Gainsboro}, {cmd:LightGray} (or {cmd:LightGrey}), {cmd:Silver},
+    {cmd:DarkGray} (or {cmd:LightGrey}),
+    {cmd:DimGray} (or {cmd:DimGrey}),
+    {cmd:Gray} (or {cmd:Grey}),
+    {cmd:LightSlateGray} (or {cmd:LightSlateGrey}),
+    {cmd:SlateGray} (or {cmd:SlateGrey}),
+    {cmd:DarkSlateGray} (or {cmd:DarkSlateGrey}),
     {cmd:Black}
 
 {pstd}
@@ -1211,7 +1259,7 @@ or {cmd:.} to insert a gap.
 {pstd}The syntax for the {cmd:matplotlib} palette is
 
 {p 8 15 2}
-    {cmd:matplotlib} [{cmd:,} {it:colormap} {opt ra:nge(lb [ub])} {help colorpalette##opts:{it:palette_options}} ]
+    {cmdab:matplot:lib} [{cmd:,} {it:colormap} {opt ra:nge(lb [ub])} {help colorpalette##opts:{it:palette_options}} ]
 
 {pstd}
     where {it:colormap} is one of the following (abbreviations allowed)
@@ -1379,6 +1427,38 @@ or {cmd:.} to insert a gap.
     and option {cmd:cmyk} requests the CMYK variant of the scheme. The default is to use
     the RGB variant.
 
+{marker webc}{...}
+{dlgtab:webcolors}
+
+{pstd}
+    The {cmd:webcolors} collection provides named colors from
+    {browse "https://www.w3schools.com/colors/colors_names.asp":www.w3schools.com}. The
+    syntax is
+
+{p 8 15 2}
+    {cmdab:web:colors} [{cmd:,} {it:scheme} {help colorpalette##opts:{it:palette_options}} ]
+
+{pstd}
+    where {it:scheme} is one of the following (abbreviations allowed; see {help colorpalette##webcolors:here} for
+    color names).
+
+{p2colset 9 24 26 2}{...}
+{p2col:{stata colorpalette webcolors, pink:{bf:pink}}}6 pink colors{p_end}
+{p2col:{stata colorpalette webcolors, purple:{bf:purple}}}19 purple colors{p_end}
+{p2col:{stata colorpalette webcolors, redorange:{bf:redorange}}}14 red and orange colors{p_end}
+{p2col:{stata colorpalette webcolors, yellow:{bf:yellow}}}11 yellow colors{p_end}
+{p2col:{stata colorpalette webcolors, green:{bf:green}}}22 green colors{p_end}
+{p2col:{stata colorpalette webcolors, cyan:{bf:cyan}}}8 cyan colors{p_end}
+{p2col:{stata colorpalette webcolors, blue:{bf:blue}}}16 blue colors{p_end}
+{p2col:{stata colorpalette webcolors, brown:{bf:brown}}}18 brown colors{p_end}
+{p2col:{stata colorpalette webcolors, white:{bf:white}}}17 white colors{p_end}
+{p2col:{stata colorpalette webcolors, gray:{bf:gray}}}10 gray colors{p_end}
+{p2col:{stata colorpalette webcolors, grey:{bf:grey}}}10 grey colors (same color codes as {cmd:gray}){p_end}
+
+{pstd}
+    All 148 web colors (alphabetically sorted) will be returned if {it:scheme}
+    is omitted.
+
 {marker myname}{...}
 {dlgtab:myname}
 
@@ -1397,8 +1477,8 @@ or {cmd:.} to insert a gap.
             c_local P #ffffff,#337ab7,#5cb85c,#5bc0de,#f0ad4e,#d9534f, ///
                       #e6e6e6,#286090,#449d44,#31b0d5,#ec971f,#c9302c
             c_local I default,primary,success,info,warning,danger, ///
-                default.focus, primary.focus,success.focus,info.focus, ///
-                warning.focus,danger.focus
+                default_focus,primary_focus,success_focus,info_focus, ///
+                warning_focus,danger_focus
             c_local class qualitative
         end{txt}
 
@@ -1440,12 +1520,28 @@ or {cmd:.} to insert a gap.
     Apart from viewing color palettes, {cmd:colorpalette} is useful for
     retrieving colors that can then be passed through to a graph command. Here is
     an example of a contour plot using the {cmd:terrain} scheme from
-    the {cmd:hcl} color generator:
+    the {helpb colorpalette##hcl:hcl} color generator:
 
         . {stata sysuse sandstone, clear}
         . {stata colorpalette jmh, terrain n(10) nograph}
 {p 8 12 2}
         . {stata twoway contour depth northing easting, levels(`r(n)') ccolors(`r(p)')}
+
+{pstd}
+    To make colors available as {helpb global} macros, use the {helpb colorpalette##globals:globals()} option. For example, to
+    make all {help colorpalette##webcolors:web colors} available, type:
+
+        {com}. colorpalette webcolors, globals{txt}
+
+{pstd}
+    You can then use the created globals in subsequent graph commands:
+
+        {com}. sysuse auto, clear
+        . scatter price weight, mc($Fuchsia) graphr(color($HoneyDew))
+        . scatter price weight, mc($Tomato) graphr(color($SeaShell)){txt}
+
+{pstd}
+    The globals will disappear once you restart Stata.
 
 
 {marker returns}{...}

@@ -1,6 +1,6 @@
-*Author: Clément de Chaisemartin
-*1st version: November 8th 2019
-*This version: March 25th 2020
+*﻿*Author: Clément de Chaisemartin
+**1st version: November 8th 2019
+**This version: May 18th 2020
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// Program #1: Does sanity checks and time consuming data manipulations, calls did_multiplegt_results, and stores estimates and standard errors in e() and put them on a graph //////
@@ -56,7 +56,8 @@ if did_multiplegt_check==1 {
 	drop if `weight'==.
 	}	
 	tokenize `varlist'
-	drop if `1'==.|`2'==.|`3'==.|`4'==.
+	//XXX: to show to Shuo
+	drop if `2'==.|`3'==.|`4'==.
 	if "`controls'" !=""{
 	foreach var of varlist `controls'{
 	drop if `var'==.
@@ -202,6 +203,7 @@ local count_controls=`count_controls'+1
 //Creating trends_var if needed
 
 if "`trends_nonparam'" !=""{
+//XXX: to show to Shuo
 egen long trends_var_XX=group(`trends_nonparam' time_XX)
 }
 
@@ -858,10 +860,10 @@ preserve
 
 replace diff_y_XX=diff_y_lag`i'_XX
 
-local j=0
 if "`controls'" !=""{
-local j=`j'+1
+local j=0
 foreach var of varlist `controls'{
+local j=`j'+1
 replace `var'=ZZ_cont_lag`i'_`j'
 }
 }
@@ -915,10 +917,10 @@ preserve
 
 replace diff_y_XX=ldiff_y_for`i'_XX 
 
-local j=0
 if "`controls'" !=""{
-local j=`j'+1
+local j=0
 foreach var of varlist `controls'{
+local j=`j'+1
 replace `var'=ZZ_cont_ldiff_for`i'_`j'
 }
 }
@@ -977,6 +979,10 @@ preserve
 	if "`if'" !=""{
 	keep `if'
 	}
+
+// Drop if diff_y_XX missing, to avoid that those observations are used in estimation (XXX: To show to Shuo)
+
+drop if diff_y_XX==.
 	
 // Creating residualized first diff outcome if control variables specified in estimation
 
@@ -1160,7 +1166,7 @@ if n_increase*n_stable>0 {
 gen `treatment_dummy' =($cond_increase_t)
 
 if `bootstrap_rep'==0{
-replace `tag_obs'=1 if ($cond_increase_t)|($cond_stable_t)
+replace `tag_obs'=1 if (($cond_increase_t)|($cond_stable_t))
 // XXX: To show to Shuo
 replace `tag_switchers'=1 if $cond_increase_t
 }
@@ -1180,7 +1186,7 @@ if n_decrease*n_stable>0 {
 gen `treatment_dummy' =($cond_decrease_t)
 
 if `bootstrap_rep'==0{
-replace `tag_obs'=1 if ($cond_decrease_t)|($cond_stable_t) 
+replace `tag_obs'=1 if (($cond_decrease_t)|($cond_stable_t))
 // XXX: To show to Shuo
 replace `tag_switchers'=1 if $cond_decrease_t
 }

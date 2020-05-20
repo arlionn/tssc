@@ -1,4 +1,4 @@
-*! version 1.1.1  31jan2019  Ben Jann
+*! version 1.1.3  10may2020  Ben Jann
 
 if c(stata_version)<14.2 {
     di as err "{bf:colorpalette} requires version 14.2 of Stata" _c
@@ -65,7 +65,7 @@ program colorpalette
         if `"`palette'"'!="" { // handle syntax after last slash
             _parse comma p rhs : palette
             if `"`p'"'!="" {
-                Parse_Graph_Opts `rhs'  // returns rhs and 0
+                Parse_Global_Opts `rhs'  // returns rhs and 0
                 local palettes `"`palettes'`"`p'`rhs'"'"'
             }
             else local 0: copy local palette
@@ -75,7 +75,11 @@ program colorpalette
     else {
         Palette_Get `0'
     }
-    if "`GRAPH'"=="" {
+    if `"`GLOBALS'`GLOBALS2'"'!="" {
+        if "`GRAPH'"=="" local NOGRAPH nograph
+        Globals `GLOBALS2'
+    }
+    if "`NOGRAPH'"=="" {
         tempname hcurrent
         _return hold `hcurrent'
         _return restore `hcurrent', hold // make copy
@@ -88,10 +92,12 @@ end
 /* retrieve palette(s)                                                        */
 /*----------------------------------------------------------------------------*/
 
-program Parse_Graph_Opts
-    syntax [, noGRaph GRopts(passthru) TItle(passthru) rows(passthru) names NONUMbers * ]
-    if `"`graph'`gropts'`title'`rows'"'!="" {
-        c_local 0 `", `graph' `gropts' `title' `rows' `names' `nonumbers'"'
+program Parse_Global_Opts
+    syntax [, NOGRaph GRAPH GRopts(passthru) TItle(passthru) rows(passthru) ///
+        names NONUMbers GLobals GLobals2(passthru) * ]
+    local 0 `nograph' `graph' `gropts' `title' `rows' `names' `nonumbers' `globals' `globals2'
+    if `"`0'"'!="" {
+        c_local 0 `", `0'"'
     }
     if `"`options'"'!="" c_local rhs `", `options'"'
     else                 c_local rhs
@@ -99,7 +105,11 @@ end
 
 program Palette_Get2, rclass
     _parse comma palettes 0 : 0
-    syntax [, noGRaph GRopts(str asis) TItle(passthru) rows(passthru) names NONUMbers * ]
+    syntax [, NOGRaph GRAPH GRopts(str asis) TItle(passthru) rows(passthru) ///
+        names NONUMbers GLobals GLobals2(str asis) * ]
+    c_local GLOBALS "`globals'"
+    c_local GLOBALS2 `"`globals2'"'
+    c_local NOGRAPH "`nograph'"
     c_local GRAPH "`graph'"
     c_local GROPTS `"`rows' `title' `names' `gropts' `nonumbers'"'
     local space
@@ -124,7 +134,11 @@ end
 
 program Palette_Get
     _parse comma palette 0 : 0
-    syntax [, noGRaph GRopts(str asis) TItle(passthru) rows(passthru) names NONUMbers * ]
+    syntax [, NOGRaph GRAPH GRopts(str asis) TItle(passthru) rows(passthru) ///
+        names NONUMbers GLobals GLobals2(str asis) * ]
+    c_local GLOBALS "`globals'"
+    c_local GLOBALS2 `"`globals2'"'
+    c_local NOGRAPH "`nograph'"
     c_local GRAPH "`graph'"
     c_local GROPTS `"`rows' `title' `names' `gropts' `nonumbers'"'
     _Palette_Get `palette', `options'
@@ -137,7 +151,7 @@ program _Palette_Get, rclass
         OPacity(numlist int >=0 missingokay) ///
         IPolate(str) intensify(numlist >=0 missingokay) ///
         SATurate(str) LUMinate(str) GScale GScale2(str) CBlind CBlind2(str) ///
-        NOEXPAND class(str) FORCErgb cmyk * ]
+        NOEXPAND class(str) FORCErgb cmyk  * ]
     syntax [anything(name=palette id="palette" everything equalok)] `opts'
     remove_repeatedopts `"`opts'"' `", `options'"'
     if `"`opacity'"'!="" {
@@ -298,6 +312,94 @@ program parse_class
     local class `qualitative' `sequential' `diverging'
     if `:list sizeof class'>1 exit 198
     c_local class `class'
+end
+
+/*----------------------------------------------------------------------------*/
+/* return globals                                                             */
+/*----------------------------------------------------------------------------*/
+
+program Globals
+    // syntax
+    capt n syntax [anything] [, NONames Prefix(name) Suffix(str) ]
+    if _rc==1 exit _rc
+    if _rc {
+        di as err "(error in option {bf:globals()})"
+        exit _rc
+    }
+    while (`"`anything'"'!="") {
+        gettoken name anything : anything, quotes
+        if `"`anything'"'=="" { // last element
+            if substr(`"`name'"',-1,1)=="*" {
+                local name = substr(`"`name'"',1,strlen(`"`name'"')-1)
+                capt confirm name `name'
+                if _rc==1 exit _rc
+                if _rc {
+                    di as err "'" `"`name'"' "' not allowed in {bf:globals()}"
+                    exit _rc
+                }
+                local prefix1 `name'
+                continue, break
+            }
+        }
+        capt n confirm name `name'
+        if _rc==1 exit _rc
+        if _rc {
+            di as err "(error in option {bf:globals()})"
+            exit _rc
+        }
+        if "`prefix'"!="" {
+            local name `prefix'`name'
+            local name = substr("`name'",1,32)
+        }
+        local names `names' `name'
+    }
+    if `"`prefix1'"'=="" local prefix1 `prefix'
+    if `"`prefix1'"'=="" local prefix1 "p"
+    if `"`suffix'"'!="" {
+        local 0 `", suffix(_`suffix')"'
+        capt n syntax [, suffix(name) ]
+        if _rc==1 exit _rc
+        if _rc {
+            di as err "(error in option {bf:globals()})"
+            exit _rc
+        }
+        local suffix = substr(`"`suffix'"',2,.)
+    }
+    
+    // return globals
+    local n = r(n)
+    local ls = strlen(`"`suffix'"')
+    local prefix1 = substr("`prefix1'",1,32-floor(log10(`n')))
+    forv i = 1/`n' {
+        local p `"`r(p`i')'"'
+        if `: list sizeof p'>1 {
+            local p `""`p'""'
+        }
+        local pinfo `"`r(p`i'info)'"'
+        gettoken name names : names
+        if "`name'`nonames'"=="" {
+            capt confirm name `p'
+            if _rc==0 local name `prefix'`p'
+            else {
+                if `: list sizeof pinfo'==1 {
+                    capt confirm name `pinfo'
+                    if _rc==0 local name `prefix'`pinfo'
+                }
+            }
+            local name = substr("`name'",1,32)
+        }
+        if "`name'"=="" local name `prefix1'`i'
+        if `ls' {
+            local name = substr("`name'",1,32-`ls')
+            local name `name'`suffix'
+        }
+        local gnames `gnames' `name'
+        global `name' `"`p'"'
+    }
+    di _n as txt "globals:"
+    foreach name of local gnames {
+        di as txt %22s "`name'" " : " as res `"${`name'}"'
+    }
 end
 
 /*----------------------------------------------------------------------------*/
@@ -532,23 +634,28 @@ mata set matastrict on
 
 void checkpalette()
 {
-    string scalar  palettes
+    string scalar pal
+    string scalar palettes
     
+    pal = st_local("palette")
     palettes = ("Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1",
     "Set2", "Set3", "Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "OrRd",
     "Oranges", "PuBu", "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn",
     "YlGnBu", "YlOrBr", "YlOrRd", "BrBG", "PRGn", "PiYG", "PuOr", "RdBu",
     "RdGy", "RdYlBu", "RdYlGn", "Spectral", "sfso")
-    if (anyof(palettes, st_local("palette"))) {
+    if (anyof(palettes, pal)) {
         if (st_local("cmyk")!="") return
         st_local("ptype", "2")
         return
     }
     palettes = ("s1", "s1r", "s2", "economist", "mono", "cblind", "plottig",
-    "538", "tfl", "mrc", "burd", "lean", "d3", "ptol", "tableau", "lin",
-    "spmap", "matplotlib", "magma", "inferno", "plasma", "viridis", "cividis",
-    "twilight", "hue", "hcl", "lch", "jmh", "hsv")
-    if (anyof(palettes, st_local("palette"))) st_local("ptype", "2")
+    "538", "tfl", "mrc", "burd", "lean", "webcolors", "d3", "ptol", "tableau",
+    "lin", "spmap", "matplotlib", "magma", "inferno", "plasma", "viridis",
+    "cividis", "twilight", "hue", "hcl", "lch", "jmh", "hsv")
+    if (anyof(palettes, pal)) st_local("ptype", "2")
+    // allow some abbreviations
+    else if (substr("webcolors",1,max((3,strlen(pal))))==pal)  st_local("ptype","2")
+    else if (substr("matplotlib",1,max((7,strlen(pal))))==pal) st_local("ptype","2")
 }
 
 void getpalette(real scalar ptype, real scalar n)
@@ -1410,7 +1517,7 @@ program colorpalette_sfso
     else if "`pal'"=="languages" {
         local class "qualitative"
         c_local P 0 .9 .9 0,.9 .5 0 0,.9 0 .8 0,0 .25 .9 0,.6 .7 0 0
-        c_local I German,French,Italian,Rhaeto-Romanic,English
+        c_local I German,French,Italian,RhaetoRomanic,English
     }
     else if "`pal'"=="votes" {
         local class "diverging"
@@ -1432,68 +1539,6 @@ program colorpalette_sfso
     c_local name sfso `pal'
     c_local note CMYK
     c_local class "`class'"
-end
-
-program colorpalette_webcolors_pink
-c_local P Pink,LightPink,HotPink,DeepPink,PaleVioletRed,MediumVioletRed
-c_local class "qualitative"
-end
-
-program colorpalette_webcolors_purple
-c_local P Lavender,Thistle,Plum,Orchid,Violet,Fuchsia,Magenta,MediumOrchid,/*
-*/DarkOrchid,DarkViolet,BlueViolet,DarkMagenta,Purple,MediumPurple,/*
-*/MediumSlateBlue,SlateBlue,DarkSlateBlue,RebeccaPurple,Indigo
-c_local class "qualitative"
-end
-
-program colorpalette_webcolors_redorange
-c_local P LightSalmon,Salmon,DarkSalmon,LightCoral,IndianRed,Crimson,Red,/*
-*/FireBrick,DarkRed,Orange,DarkOrange,Coral,Tomato,OrangeRed
-c_local class "qualitative"
-end
-
-program colorpalette_webcolors_yellow
-c_local P Gold,Yellow,LightYellow,LemonChiffon,LightGoldenRodYellow,PapayaWhip,/*
-*/Moccasin,PeachPuff,PaleGoldenRod,Khaki,DarkKhaki
-c_local class "qualitative"
-end
-
-program colorpalette_webcolors_green
-c_local P GreenYellow,Chartreuse,LawnGreen,Lime,LimeGreen,PaleGreen,LightGreen,/*
-*/MediumSpringGreen,SpringGreen,MediumSeaGreen,SeaGreen,ForestGreen,Green,/*
-*/DarkGreen,YellowGreen,OliveDrab,DarkOliveGreen,MediumAquaMarine,DarkSeaGreen,/*
-*/LightSeaGreen,DarkCyan,Teal
-c_local class "qualitative"
-end
-
-program colorpalette_webcolors_cyan
-c_local P Aqua,Cyan,LightCyan,PaleTurquoise,Aquamarine,Turquoise,MediumTurquoise,DarkTurquoise
-c_local class "qualitative"
-end
-
-program colorpalette_webcolors_blue
-c_local P CadetBlue,SteelBlue,LightSteelBlue,LightBlue,PowderBlue,LightSkyBlue,/*
-*/SkyBlue,CornflowerBlue,DeepSkyBlue,DodgerBlue,RoyalBlue,Blue,MediumBlue,/*
-*/DarkBlue,Navy,MidnightBlue
-c_local class "qualitative"
-end
-
-program colorpalette_webcolors_brown
-c_local P Cornsilk,BlanchedAlmond,Bisque,NavajoWhite,Wheat,BurlyWood,Tan,/*
-*/RosyBrown,SandyBrown,GoldenRod,DarkGoldenRod,Peru,Chocolate,Olive,/*
-*/SaddleBrown,Sienna,Brown,Maroon
-c_local class "qualitative"
-end
-
-program colorpalette_webcolors_white
-c_local P White,Snow,HoneyDew,MintCream,Azure,AliceBlue,GhostWhite,WhiteSmoke,/*
-*/SeaShell,Beige,OldLace,FloralWhite,Ivory,AntiqueWhite,Linen,LavenderBlush,MistyRose
-c_local class "qualitative"
-end
-
-program colorpalette_webcolors_grey
-c_local P Gainsboro,LightGray,Silver,DarkGray,DimGray,Gray,LightSlateGray,SlateGray,DarkSlateGray,Black
-c_local class "qualitative"
 end
 
 exit

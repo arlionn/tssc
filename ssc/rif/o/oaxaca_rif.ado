@@ -1,5 +1,10 @@
-*!version 2.32 Feb  2020 Fernando Rios Avila
-* Corrected small error with markout and parsin
+*!version 2.34 April  2020 Fernando Rios Avila
+* added alert for Robust standard errors. 
+* Note to myself: How to add info about Cluster? and allow for NO SE?
+* version 2.33 April  2020 Fernando Rios Avila
+* Eliminated  minor inneficiencies
+* version 2.32 Feb  2020 Fernando Rios Avila
+* Corrected small error with markout and parsing
 * version 2.31 Feb  2020 Fernando Rios Avila
 * Improvement in sample definition. Use markout rather than manual.
 * version 2.3 November 2019 Fernando Rios Avila
@@ -17,15 +22,21 @@
 * Various RIF decompositions are available. More than just RIFREG
 * Correction to output table regarding Reweight error.
 *capture program drop oaxaca_rif
-program oaxaca_rif, eclass sortpreserve byable(recall) 
+program oaxaca_rif, eclass sortpreserve byable(recall)  properties( svyb )
     if replay() {
         display_ob
         exit
     }
    version 12.0
-   syntax anything [if] [in] [aw fw iw pw] , by(varname) rif(string)   [ swp swap Weights(str) rwlogit(str) rwprobit(str) wgt(int -1) cluster(varname) ///
-								relax Noisily scale(real 1.0) retain(str) replace iseed(str) s2var(varlist) ]
+   syntax anything [if] [in] [aw fw iw pw] , by(varname) rif(string)  ///
+						[ swp swap Weights(str) rwlogit(str) rwprobit(str) wgt(int -1) cluster(varname) ///
+								relax Noisily scale(real 1.0) retain(str) replace iseed(str) s2var(varlist) nose]
    *iseed undocumented. The idea is to make some indices reproducible
+	/*if c(stata_version)>=16 {
+		local fv fv
+		this is to try making it FV but problems with a bug
+	}98*/
+ 
 	
 	tokenize `anything'
 	local y `1'
@@ -38,19 +49,6 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 	*display in w "`rest2'"
 	marksample touse
 	markout `touse' `y' `rest2' `by' `cluster' `rwprobit'  `rwlogit' `s2var'
-/*	fvexpand `rwprobit'
-	local erwprobit `r(varlist)'
-	
-	fvexpand `rwlogit'
-	local erwlogit `r(varlist)'
-	
-	tempvar ax1
-	foreach i in `anything' `by' `erwlogit' `erwprobit' `cluster' {
-		capture drop `ax1'
-		capture gen `ax1'=`i'
-		capture replace `touse'=0 if `ax1'==.
-	}
-*/	
 	
 	****Here we identify GROUPs
 	qui:levelsof `by' if `touse', local(idf)
@@ -173,12 +171,12 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 		}
 		  
 		*qui:reg `re' if `touse'==1
-		qui:oaxaca `rif_var' `rest' `re' [`weight'=`exp'] if `touse'==1,   by(`by') w(`wgt') robust cluster(`cluster') `relax'  
+		qui:`fv'oaxaca `rif_var' `rest' `re' [`weight'=`exp'] if `touse'==1,   by(`by') w(`wgt') robust cluster(`cluster') `relax'  `se'
  		drop `rif_var'
 		local lgd "" `e(legend)'  ""
 		tempname b V
 		matrix `b'=e(b)
-		matrix `V'=e(V)
+		if "`se'"==""		matrix `V'=e(V)
 		if `wgt'==0 {
 			local gc = "x1*b2"
 		}
@@ -206,7 +204,7 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 		qui:levelsof `by' if `touse'==1, local(grps)
 		tempvar dy
 		qui:egen `dy'=group(`by') if `touse'
-		qui:sum `dy' if `touse'
+		qui:sum `dy' if `touse', meanonly
 		***
 		if r(max)>2 {
 		  display "More than 2 groups detected. Only 2 groups allowed for reweighted OAXACA"
@@ -239,11 +237,11 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 				
 		if `wgt'==0 {
 		 * display "Counterfactual: group_2 reweighted to group_1 characteristics"
-		  tempvar id ord
+		  tempvar id id2 ord
 		  qui:gen `id'=_n
 		  qui:expand 2 if `dy'==1
-		  
-		  qui:bysort `id':gen `ord'=_n
+		  qui:gen `id2'=_n
+		  qui:gen byte `ord'=1+(`id'!=`id2')
 		  tempvar ddy
 		  qui:gen  byte   `ddy'=1 if `dy'==0
 		  qui:replace `ddy'=3 if `dy'==1 
@@ -254,12 +252,14 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 		  qui:replace `ipw'=(1-`pr')/`pr' if  `ddy'==2
  		  local gc="X2~>rw~>X1 or x1*b2"
 		}
+		
 		if `wgt'==1 {
 		 * display "Counterfactual: group_1 reweighted to group_2 characteristics"
-		  tempvar id ord
+		  tempvar id id2 ord
 		  qui:gen `id'=_n
 		  qui:expand 2 if `dy'==0
-		  qui:bysort `id':gen `ord'=_n
+		  qui:gen `id2'=_n
+		  qui:gen byte `ord'=1+(`id'!=`id2')
 		  tempvar ddy
 		  qui:gen  byte   `ddy'=1 if `dy'==0
 		  qui:replace `ddy'=3 if `dy'==1
@@ -269,7 +269,8 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 		  qui: replace `ipw'=`pr'/(1-`pr') if `ddy'==2
  		  local gc="X1~>rw~>X2 or x2*b1"
 		}
-		qui:compress
+		
+		/*qui:compress NOT NEEDED Just takes time*/ 
 		** Here we create the RIFs using RIFreg for three groups. group 2 its the Counterfactual.
         tempvar rifvar
 		tempvar wexp
@@ -277,11 +278,10 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
  		qui:egen `rifvar'=rifvar(`y') if `touse', `rif' weight(`wexp') by(`ddy') seed(`iseed')
 		
 		** Rescaling
-		qui:replace `rifvar'=`rifvar'*`scale'
+		if "`scale'"!="1"  qui:replace `rifvar'=`rifvar'*`scale'
 		
         ** Here we do the actual OB decomposition: 
- 	 
-		
+ 	
 		*** this is a new option s2var(str) The idea is to add the "variance" as another component to the decomposition.
 		foreach i of local s2var {
 			qui: egen _s2_`i'=rifvar(`i') if `touse'==1, var weight(`wexp') by(`ddy') seed(`iseed')
@@ -305,18 +305,18 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 			matrix `Vf`cnt''=e(V)
 		   }	
 		}
-		
-		qui:oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & (`ddy'==1 | `ddy'==3),   by(`ddy') w(`wgt') nodetail robust cluster(`idcluster')  `relax'  
+		** re is the created s2var
+		qui:`fv'oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & (`ddy'==1 | `ddy'==3),   by(`ddy') w(`wgt') nodetail robust cluster(`idcluster')  `relax'   `se'
 		tempname b0 v0 bb vb bx vx bc vc
         matrix `b0'=e(b)
         matrix `v0'=e(V)  
 		if `wgt'==0 { 
 		   ** Delta B
-	 		qui:oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & inlist(`ddy',1,2),   by(`ddy') w(0) cluster(`idcluster')   `relax'  
+	 		qui:`fv'oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & inlist(`ddy',1,2),   by(`ddy') w(0) cluster(`idcluster')   `relax'   `se'
 			matrix `bb'=e(b)
 			matrix `vb'=e(V)
 		   ** Delta x
-			qui: oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & inlist(`ddy',2,3),   by(`ddy') w(0) cluster(`idcluster')   `relax' 
+			qui:`fv'oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & inlist(`ddy',2,3),   by(`ddy') w(0) cluster(`idcluster')   `relax'  `se'
 			matrix `bx'=e(b)
 			matrix `vx'=e(V)
 			local lgd "" `e(legend)'  ""
@@ -326,11 +326,11 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 			}
 		if `wgt'==1 {
 		   ** Delta X
-			qui:oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & inlist(`ddy',1,2),   by(`ddy') w(1) cluster(`idcluster') `relax'  
+			qui:`fv'oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & inlist(`ddy',1,2),   by(`ddy') w(1) cluster(`idcluster') `relax'   `se'
 			matrix `bx'=e(b)
 			matrix `vx'=e(V)
 		   ** Delta B
-			qui:oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & inlist(`ddy',2,3),   by(`ddy') w(1) cluster(`idcluster') `relax'  
+			qui:`fv'oaxaca `rifvar' `rest'  `re' [aw=`exp'*`ipw'] if `touse'==1 & inlist(`ddy',2,3),   by(`ddy') w(1) cluster(`idcluster') `relax'   `se'
 			matrix `bb'=e(b)
 			matrix `vb'=e(V)
 			local lgd `e(legend)'
@@ -347,9 +347,7 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 		** Aggregate Decomp
 		
 		matrix `b0'=`b0'[.,"overall:group_1"],`bc',`b0'[.,"overall:group_2"],`b0'[.,"overall:difference"]
-		matrix `v0'=`v0'[.,"overall:group_1"],[0,0,0,0,0]',`v0'[.,"overall:group_2"],`v0'[.,"overall:difference"]
-		matrix `v0'=`v0'["overall:group_1",.]\  [0,`vc',0,0] \ `v0'["overall:group_2",.] \ `v0'["overall:difference",.]
-	 
+		
         **Explained 
 		tempname bx1 bx2 bx3
 		matrix `bx1'=`bx'[.,"overall:"]
@@ -361,9 +359,7 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 		matrix coleq   `bx3'="Specif_err"
 		matrix `bx'=`bx1'[.,3...],`bx2',`bx3'
         *matrix drop bx1 bx2' bx3'
-		matrix `vx'=`vx'[.,3..5], `vx'[.,"explained:"], `vx'[.,"unexplained:"]
-		matrix `vx'=`vx'[3..5,.]\ `vx'["explained:",.]\ `vx'["unexplained:",.]
-
+	
 		**unexplained
 		tempname bb1 bb2 bb3
 		matrix `bb1'=`bb'[.,"overall:"]
@@ -375,8 +371,6 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 		matrix coleq   `bb2'="Reweight_err"
 		matrix `bb'=`bb1'[.,3...],`bb3',`bb2'
 		*matrix drop bb1 bb3 bb2
-		matrix `vb'=`vb'[.,3..5], `vb'[.,"unexplained:"], `vb'[.,"explained:"]
-		matrix `vb'=`vb'[3..5,.]\ `vb'["unexplained:",.]\ `vb'["explained:",.]
 		**Label VCOV to extract Total Explained and Total unexplained.
 		*
 		**Putting all together
@@ -387,34 +381,46 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 		tempname b V
 		matrix `b'=`b0',`bx',`bb'
 		**now for V0
-		matrix `v0'=[`v0',[0,0,0,0]'] \  ///
-		           [[0,0,0,0],`vx'["overall:difference","overall:difference"]]
-		matrix `v0'=[`v0',[0,0,0,0,0]'] \  ///
-		           [[0,0,0,0,0],`vb'["overall:difference","overall:difference"]]
-
+		
 		** Flip at some point to make better sense
-		local x2=colsof(`v0')
-		local x1=colsof(`vx')
+
 		local cb: colnames `b'
 		local ceqb: coleq  `b'
 		
-		matrix `V'=[`v0',J(`x2',`x1'*2,0)]  \ ///
-				[J(`x1',`x2',0),`vx',J(`x1',`x1',0)]\  ///
-				[ J(`x1',`x1'+`x2',0),`vb']
-		matrix colname `V'=`cb'
-		matrix coleq `V'=`ceqb'
-		matrix rowname `V'=`cb'
-		matrix roweq `V'=`ceqb'		
+		if "`se'"=="" {
+			matrix `v0'=`v0'[.,"overall:group_1"],[0,0,0,0,0]',`v0'[.,"overall:group_2"],`v0'[.,"overall:difference"]
+			matrix `v0'=`v0'["overall:group_1",.]\  [0,`vc',0,0] \ `v0'["overall:group_2",.] \ `v0'["overall:difference",.]
+			matrix `vx'=`vx'[.,3..5], `vx'[.,"explained:"], `vx'[.,"unexplained:"]
+			matrix `vx'=`vx'[3..5,.]\ `vx'["explained:",.]\ `vx'["unexplained:",.]
+
+			matrix `vb'=`vb'[.,3..5], `vb'[.,"unexplained:"], `vb'[.,"explained:"]
+			matrix `vb'=`vb'[3..5,.]\ `vb'["unexplained:",.]\ `vb'["explained:",.]
+
+			matrix `v0'=[`v0',[0,0,0,0]'] \  ///
+					   [[0,0,0,0],`vx'["overall:difference","overall:difference"]]
+			matrix `v0'=[`v0',[0,0,0,0,0]'] \  ///
+					   [[0,0,0,0,0],`vb'["overall:difference","overall:difference"]]
+
+			local x2=colsof(`v0')
+			local x1=colsof(`vx')		   
+			matrix `V'=[`v0',J(`x2',`x1'*2,0)]  \ ///
+					[J(`x1',`x2',0),`vx',J(`x1',`x1',0)]\  ///
+					[ J(`x1',`x1'+`x2',0),`vb']
+			matrix colname `V'=`cb'
+			matrix coleq `V'=`ceqb'
+			matrix rowname `V'=`cb'
+			matrix roweq `V'=`ceqb'		
+		}
 		** returing results
 		
 	restore	
 
 	*************************************************************
 	}
-	
 
     *display "is it not doing this"
-	ereturn post `b' `V', esample(`touse') depname(`y')
+	if "`se'"=="" 	ereturn post `b' `V', esample(`touse') depname(`y')
+	else ereturn post `b' , esample(`touse') depname(`y')
 	eret loc title "Blinder-Oaxaca RIF-decomposition"
 	eret loc model "Blinder-Oaxaca RIF-decomposition"
     eret loc cmd    "oaxaca_rif"
@@ -432,7 +438,7 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 	eret loc N2 `N2'
 	eret loc NC `NC'	
 	if "`e(dtype)'"=="Reweighted" {
-	   if "`logit'"!="" {
+	   if "`rwlogit'"!="" {
 		  eret loc rwmodel "logit"
 		  ereturn matrix b_logit=`b_rw'
 		  ereturn matrix V_logit=`v_rw'
@@ -459,6 +465,7 @@ program oaxaca_rif, eclass sortpreserve byable(recall)
 		}
 	*capture matrix drop v0 vb vx b0 bb bx vc bc xs bs xcx bcx xc xm bm
 	ereturn local lgd `lgd'
+	ereturn local vcetype  "Robust"
 	display_ob
 end
 
@@ -472,11 +479,11 @@ if "`e(cmd)'"!="oaxaca_rif" {
 	di as txt "Type   : " as res e(dtype)
 	di as txt "RIF    : " as res e(rifvarp)
 	di as txt "Scale  : " as res e(scale)
-    di as txt "Group 1: `e(by)' = " as res e(g1) ///
-       as txt _col(50) "N of obs 1      `space'= " as res %10.0g e(N1)
-	di as txt "Group c: `e(gc)' "  ///
+    di as txt "Group 1: `e(by)' = " as res e(g1) as text _col(10) " x1*b1 " ///
+       as txt _col(50) "N of obs 1      `space'= " as res %10.0g e(N1) 
+	di as txt "Group c:" _col(10) "`e(gc)' "  ///
        as txt _col(50) "N of obs C      `space'= " as res %10.0g e(NC)
-    di as txt "Group 2: `e(by)' = " as res e(g2) ///
+    di as txt "Group 2: `e(by)' = " as res e(g2) as text _col(10)  " x2*b2 " ///
        as txt _col(50) "N of obs 2      `space'= " as res %10.0g e(N2)
     di ""
 ereturn display
@@ -502,11 +509,12 @@ end
 
 program ParseVar, rclass
     capt ParseVarCheckNormalize, `0'
+	if c(version)>=16 local fv fv
     if _rc==0 {
         gettoken dummies hash: normalize, parse("#")
         gettoken hash cons: hash, parse("#")
         if `"`hash'"'!="" {
-            unab cons: `cons', max(1) name(#)
+            `fv'unab cons: `cons', max(1) name(#)
         }
         else local cons "_cons"
         foreach v of local dummies {
@@ -516,11 +524,11 @@ program ParseVar, rclass
                     exit 198
                 }
                 local v = substr(`"`v'"',3,.)
-                unab v: `v'
+                `fv'unab v: `v'
                 gettoken base: v
             }
             else {
-                unab v: `v'
+                `fv'unab v: `v'
             }
             local vars `vars' `v'
         }
@@ -545,14 +553,15 @@ prog Unab
     // returns unabreviated variable names or text as typed if no variable
     gettoken lname 0 : 0, parse(":")
     gettoken junk 0 : 0, parse(":")
-    capt unab res: `0'
+	if c(stata_version)>=16 local fv fv
+    capt `fv'unab res: `0'
     if _rc {
         local res
         foreach v of local 0 {
-            capt unab res_i: `v'
+            capt `fv'unab res_i: `v'
             if _rc {
                 capt confirm name `v'
-                if _rc unab res_i: `v' //=> error
+                if _rc `fv'unab res_i: `v' //=> error
                 local res `res' `v'
             }
             else {

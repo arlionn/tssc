@@ -56,6 +56,7 @@ estimation of the reweighting factors; default is no reweight{p_end}
 {synopt :{opt rwprobit(varlist)}}specify the probit regression for the
 estimation of the reweighting factors; default is no reweight{p_end}
 {synopt :{opt iseed(str)}}create replicable results with rank-dependent indices{p_end}
+{synopt :{opt nose}}suppress computation of standard errors. {p_end}
 {synoptline}
 {p 4 6 2}
 {cmd:aweight}s, {cmd:fweight}s, {cmd:iweight}s, and {cmd:pweight}s are allowed;
@@ -196,6 +197,9 @@ specification as the one in the main model or a different specification.
 {opt iseed(str)} is used to create an auxiliary variable to deal with ties for
 the replication of results with rank-dependent indices.
     
+{phang}
+{opt nose} supresses the estimation of standard errors. This is suggested 
+to speed up calculations when using resampling methods like bootstrap. 
 
 {marker RIF_options}{...}
 {title:RIF options}
@@ -373,34 +377,32 @@ the structure of {cmd:_ghvar.ado} as a template.{p_end}
 {bf:. {stata oaxaca_rif lnwage age educ exper tenure, by(female) wgt(1) rif(rifown(hvar) rifopt(hvp))}}
 
 {pstd}
-Bootstrap Accounting for Survey design Bootstrap, this requires the program {cmd:bs4rw}:
+Bootstrap accounting for Survey design Bootstrap. It uses the official prefix {help svy}:
 {p_end}
-{phang2}
-{bf:. {stata net search bs4rw}}{p_end}
-{phang2}
-{bf:. {stata net install bs4rw}}{p_end}
 {phang2}
 {bf:. {stata "use http://www.stata-press.com/data/r11/nhanes2brr"}}{p_end}
 {phang2}
 {bf:. {stata gen bmi=weight/(height/100)^2}}{p_end}
 
 {pstd}
-Bootstrap using survey design for decomposition of means:
+Bootstrap using survey design for decomposition of means. The second supresses Standard errors for faster bootstrapping:
 {p_end}
 {phang2}
-{bf:. {stata "bs4rw, rw(brr*):oaxaca_rif bmi age black orace region2 region3 region4 [pw=finalwgt], by(female) rif(mean)"}}
+{bf:. {stata "svy:oaxaca_rif bmi age black orace region2 region3 region4 , by(female) rif(mean) "}}{p_end}
+{phang2}
+{bf:. {stata "svy:oaxaca_rif bmi age black orace region2 region3 region4 , by(female) rif(mean) nose"}}
 
 {pstd}
 Bootstrap using survey design for decomposition of 25th quantile:
 {p_end}
 {phang2}
-{bf:. {stata "bs4rw, rw(brr*):oaxaca_rif bmi age black orace region2 region3 region4 [pw=finalwgt], by(female) rif(q(25))"}}	
+{bf:. {stata "svy:oaxaca_rif bmi age black orace region2 region3 region4  , by(female) rif(q(25)) nose"}}	
 
 {pstd}
 Bootstrap using survey design for decomposition of 25th quantile, using reweighted decomposition :
 {p_end}
 {phang2}
-{bf:. {stata "bs4rw, rw(brr*):oaxaca_rif bmi age black orace region2 region3 region4 [pw=finalwgt], by(female) rif(q(25)) rwlogit(age black orace region2 region3 region4) "}}
+{bf:. {stata "svy:oaxaca_rif bmi age black orace region2 region3 region4  , by(female) rif(q(25)) rwlogit(age black orace region2 region3 region4) nose"}}
 	
 	
 {marker Acknowledgments}{...}
@@ -432,10 +434,8 @@ regressions. {it:Econometrics} 6: 28.
 {browse "https://doi.org/10.3390/econometrics6020028"}.
 
 {phang}
-Rios-Avila, F. 2019. Recentered influence functions in Stata: Methods for
-analyzing the determinants of poverty and inequality. Working paper 927, Levy
-Economics Institute. {browse "http://www.levyinstitute.org/pubs/wp_927.pdf"}
-or see {browse "https://tinyurl.com/tx75uzl":rif_paper} for latest version.
+Rios-Avila, F. 2020. Recentered influence functions (RIFs) in Stata: RIF regression and RIF decomposition.
+Stata Journal, 20(1), 51-94. {browse "https://doi.org/10.1177/1536867X20909690"}. 
 
 {marker Author}{...}
 {title:Author}

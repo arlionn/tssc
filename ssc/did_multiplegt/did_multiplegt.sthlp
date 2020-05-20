@@ -27,6 +27,7 @@
 {cmd:average_effect(}{it:string}{cmd:)}
 {cmd:{ul:recat}_treatment(}{it:varlist}{cmd:)}
 {cmd:{ul:threshold}_stable_treatment(}{it:#}{cmd:)}
+{cmd:save_results(}{it:path}{cmd:)}
 ]{p_end}
 
 {synoptset 28 tabbed}{...}
