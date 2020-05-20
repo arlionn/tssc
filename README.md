@@ -4,7 +4,7 @@
 > 正在开发中！请谨慎使用！
 
 这里存放在 ssc 上所有的 Stata 命令以及我从 GitHub 上搜集的各种 Stata 命令，另外也托管用户自编的 Stata
-命令（带中文帮助文档的也可以），欢迎大家关注微信公众号“TidyFriday” 和
+命令（带中文帮助文档的也可以），欢迎大家关注微信公众号“Stata 连享会”、“TidyFriday” 和
 “Stata中文社区”获取最新资讯和动态！
 
 |                                   Stata连享会                                    |                                           TidyFriday                                           |                                           Stata中文社区                                            |
@@ -41,7 +41,7 @@ net install spmap.pkg, from("https://czxa.github.io/tssc/ssc/spmap/") all replac
 
 ### TSSC 命令列表
 
-TSSC 上合计有 2911 个 Stata 外部命令：
+TSSC 上合计有 2908 个 Stata 外部命令：
 
 <details>
 
@@ -10723,28 +10723,6 @@ tssc install diagtest
 
 <td style="text-align:center;">
 
-dict
-
-</td>
-
-<td style="text-align:center;">
-
-一个中英互译的命令
-
-</td>
-
-<td style="text-align:center;">
-
-tssc install dict
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:center;">
-
 did\_multiplegt
 
 </td>
@@ -12781,28 +12759,6 @@ module to generate estimates and confidence limits plots
 <td style="text-align:center;">
 
 tssc install eclplot
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:center;">
-
-eda
-
-</td>
-
-<td style="text-align:center;">
-
-a program for automating exploratory data analysis in Stata.
-
-</td>
-
-<td style="text-align:center;">
-
-tssc install eda
 
 </td>
 
@@ -15559,26 +15515,6 @@ module to trace filter or contingency questions
 <td style="text-align:center;">
 
 tssc install filtertrace
-
-</td>
-
-</tr>
-
-<tr>
-
-<td style="text-align:center;">
-
-finance
-
-</td>
-
-<td style="text-align:center;">
-
-</td>
-
-<td style="text-align:center;">
-
-tssc install finance
 
 </td>
 

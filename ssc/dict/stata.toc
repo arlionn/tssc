@@ -1,5 +1,0 @@
-v 3.0.0
-d 'DICT': 一个在Stata中进行中英文互译的命令
-d version (release) as well as their dependencies from 
-d {browse "https://github.com/czxa/dict": GitHub} website
-p dict
